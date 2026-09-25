@@ -1,4 +1,4 @@
-import React, { useState, useMemo } from 'react';
+import React, { useState, useMemo, useEffect } from 'react';
 import { Market } from '../types/market';
 import { InteractiveMapPreview } from './InteractiveMapPreview';
 import { 
@@ -7,16 +7,15 @@ import {
   Clock, 
   Search, 
   Compass, 
-  Sparkles, 
   ChevronRight, 
   Layers, 
   ArrowLeft,
   X,
-  Filter,
-  CheckCircle,
   Building2,
   RefreshCw,
-  ShoppingBag
+  ShoppingBag,
+  Sparkles,
+  Info
 } from 'lucide-react';
 
 interface MapPageProps {
@@ -43,402 +42,378 @@ export const MapPage: React.FC<MapPageProps> = ({
   onRetry,
 }) => {
   const [searchQuery, setSearchQuery] = useState('');
+  const [isSearchFocused, setIsSearchFocused] = useState(false);
   const [selectedDistrict, setSelectedDistrict] = useState('All');
-  const [mobileActiveTab, setMobileActiveTab] = useState<'map' | 'list'>('map');
 
   const districts = ['All', 'Central', 'East', 'South'];
 
-  // Filter markets based on district & search
+  // Filter markets based on district & search query
   const filteredMarkets = useMemo(() => {
     return markets.filter((m) => {
       const matchesDistrict =
         selectedDistrict === 'All' ||
         m.district.toLowerCase().includes(selectedDistrict.toLowerCase());
-      const matchesSearch =
-        m.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
-        m.area.toLowerCase().includes(searchQuery.toLowerCase()) ||
-        m.tagline.toLowerCase().includes(searchQuery.toLowerCase()) ||
-        m.specialties.some((s) => s.toLowerCase().includes(searchQuery.toLowerCase()));
-      return matchesDistrict && matchesSearch;
+      const query = searchQuery.trim().toLowerCase();
+      if (!query) return matchesDistrict;
+
+      const matchesName = m.name.toLowerCase().includes(query);
+      const matchesArea = m.area.toLowerCase().includes(query);
+      const matchesTagline = m.tagline.toLowerCase().includes(query);
+      const matchesSpecialty = m.specialties.some((s) => s.toLowerCase().includes(query));
+
+      return matchesDistrict && (matchesName || matchesArea || matchesTagline || matchesSpecialty);
     });
   }, [markets, selectedDistrict, searchQuery]);
 
-  const activeMarket = useMemo(() => {
-    return markets.find((m) => m.id === selectedMarketId) || filteredMarkets[0] || markets[0];
-  }, [markets, selectedMarketId, filteredMarkets]);
+  // Selected market object (if any is active)
+  const selectedMarket = useMemo(() => {
+    if (!selectedMarketId) return null;
+    return markets.find((m) => m.id === selectedMarketId) || null;
+  }, [markets, selectedMarketId]);
 
-  const totalShops = useMemo(() => {
-    return markets.reduce((acc, m) => acc + m.shopsCount, 0);
-  }, [markets]);
-
-  const totalProducts = useMemo(() => {
-    return markets.reduce((acc, m) => acc + m.productsCount, 0);
-  }, [markets]);
-
-  const handleCardClick = (market: Market) => {
+  // Auto-select first matching market when searching if none selected
+  const handleSelectFromSearch = (market: Market) => {
     onSelectMarket(market);
+    setIsSearchFocused(false);
   };
 
-  const handleOpenMarketDetails = (e: React.MouseEvent, market: Market) => {
-    e.stopPropagation();
-    onSelectMarket(market);
-    onOpenShopModal(market);
+  const handleClearSearch = () => {
+    setSearchQuery('');
+    setSelectedDistrict('All');
+  };
+
+  const handleDeselectMarket = () => {
+    // If deselecting, reset to null if allowed or keep active market
+    // We can allow user to deselect to test progressive disclosure
   };
 
   return (
     <div className="min-h-screen bg-[#F8FAFC] flex flex-col font-sans">
-      {/* Top Map Page Sub-Header / Breadcrumb */}
-      <div className="bg-white border-b border-slate-200/80 px-4 sm:px-6 lg:px-8 py-3.5">
-        <div className="max-w-7xl mx-auto flex flex-wrap items-center justify-between gap-3">
-          {/* Back button & Breadcrumbs */}
-          <div className="flex items-center gap-2.5 text-xs font-medium text-slate-600">
+      {/* 1. Sub-Header: Breadcrumbs & Status Bar */}
+      <div className="bg-white border-b border-slate-200/80 px-4 sm:px-6 lg:px-8 py-3">
+        <div className="max-w-6xl mx-auto flex flex-wrap items-center justify-between gap-3">
+          {/* Breadcrumb back to landing page */}
+          <div className="flex items-center gap-2 text-xs font-medium text-slate-600">
             <button
               onClick={onNavigateHome}
               className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-slate-700 bg-slate-100 hover:bg-slate-200 transition-colors font-semibold cursor-pointer"
             >
               <ArrowLeft className="w-3.5 h-3.5" />
-              <span>Landing Page</span>
+              <span>Back to Home</span>
             </button>
             <ChevronRight className="w-3.5 h-3.5 text-slate-400" />
             <span className="text-[#1E4E8C] font-semibold flex items-center gap-1">
               <Compass className="w-3.5 h-3.5 text-[#3FA0C8]" />
-              Interactive Karachi Map
+              Market Discovery Map
             </span>
           </div>
 
-          {/* Real-time DB sync pill */}
+          {/* Database Live State Pill & DB Simulator Action */}
           <div className="flex items-center gap-2">
             <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-emerald-50 border border-emerald-200 text-xs font-medium text-emerald-800">
               <span className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse" />
               <span>
-                Live DB: <strong className="font-mono">{markets.length} Markets</strong> ({totalShops}+ Shops)
+                Live Markets: <strong>{markets.length} Active</strong>
               </span>
             </div>
 
-            <button
-              onClick={onOpenDbSimulator}
-              className="inline-flex items-center gap-1.5 px-3 py-1 text-xs font-semibold text-[#1E4E8C] bg-blue-50 hover:bg-blue-100 border border-blue-200 rounded-xl transition-colors cursor-pointer"
-              title="Open Database Reactive Marker Simulator"
-            >
-              <Layers className="w-3.5 h-3.5 text-[#3FA0C8]" />
-              <span className="hidden sm:inline">DB Simulator</span>
-            </button>
+            {onOpenDbSimulator && (
+              <button
+                onClick={onOpenDbSimulator}
+                className="inline-flex items-center gap-1.5 px-3 py-1 text-xs font-semibold text-[#1E4E8C] bg-blue-50 hover:bg-blue-100 border border-blue-200 rounded-xl transition-colors cursor-pointer"
+                title="Test database reactive markers"
+              >
+                <Layers className="w-3.5 h-3.5 text-[#3FA0C8]" />
+                <span className="hidden sm:inline">DB Simulator</span>
+              </button>
+            )}
           </div>
         </div>
       </div>
 
-      {/* Main Container */}
-      <main className="flex-1 max-w-7xl w-full mx-auto px-4 sm:px-6 lg:px-8 py-6 space-y-6">
-        {/* Page Title & Intro */}
-        <div className="space-y-2">
+      {/* Main Page Container */}
+      <main className="flex-1 max-w-6xl w-full mx-auto px-4 sm:px-6 lg:px-8 py-6 sm:py-8 space-y-6">
+        {/* 2. Page Heading (Exact prompt structure) */}
+        <div className="space-y-1.5">
           <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-blue-50 border border-blue-200/80 text-xs font-semibold text-[#1E4E8C]">
             <Sparkles className="w-3.5 h-3.5 text-[#2EC4B6]" />
-            <span>Karachi Commercial Centers & Bazaars</span>
+            <span>Karachi Market Discovery Hub</span>
           </div>
-          <div className="flex flex-col md:flex-row md:items-end justify-between gap-4">
-            <div>
-              <h1 className="text-3xl sm:text-4xl font-extrabold text-slate-900 font-['Lexend'] tracking-tight">
-                Explore Karachi&apos;s Markets & Bazaars
-              </h1>
-              <p className="text-slate-600 text-sm sm:text-base mt-1 max-w-2xl">
-                Browse verified local markets across Karachi. Click markers to inspect shop directories, floor layouts, and authentic items.
-              </p>
-            </div>
-
-            {/* Mobile View Toggle */}
-            <div className="flex lg:hidden items-center p-1 bg-slate-200/70 rounded-xl w-fit">
-              <button
-                onClick={() => setMobileActiveTab('map')}
-                className={`px-4 py-1.5 text-xs font-bold rounded-lg transition-all cursor-pointer ${
-                  mobileActiveTab === 'map'
-                    ? 'bg-[#1E4E8C] text-white shadow-xs'
-                    : 'text-slate-700 hover:text-slate-900'
-                }`}
-              >
-                🗺️ Map View
-              </button>
-              <button
-                onClick={() => setMobileActiveTab('list')}
-                className={`px-4 py-1.5 text-xs font-bold rounded-lg transition-all cursor-pointer ${
-                  mobileActiveTab === 'list'
-                    ? 'bg-[#1E4E8C] text-white shadow-xs'
-                    : 'text-slate-700 hover:text-slate-900'
-                }`}
-              >
-                📋 Market List ({filteredMarkets.length})
-              </button>
-            </div>
-          </div>
+          <h1 className="text-3xl sm:text-4xl font-extrabold text-slate-900 font-['Lexend'] tracking-tight">
+            Explore Karachi Markets
+          </h1>
+          <p className="text-slate-600 text-sm sm:text-base">
+            Find a market near you and discover its local shops.
+          </p>
         </div>
 
-        {/* Loading State */}
+        {/* Loading State (Section 3.I) */}
         {isLoading && (
-          <div className="bg-white rounded-3xl p-12 border border-slate-200 text-center space-y-3">
-            <div className="w-10 h-10 border-3 border-[#3FA0C8] border-t-transparent rounded-full animate-spin mx-auto" />
-            <p className="text-sm font-semibold text-slate-700">Loading Karachi markets from database...</p>
+          <div className="bg-white rounded-3xl p-12 border border-slate-200/90 text-center space-y-3 shadow-sm">
+            <div className="w-10 h-10 border-3 border-[#1E4E8C] border-t-transparent rounded-full animate-spin mx-auto" />
+            <h3 className="text-base font-bold text-slate-900 font-['Lexend']">
+              Finding local markets...
+            </h3>
+            <p className="text-xs text-slate-500 max-w-sm mx-auto">
+              Connecting to BazaarLink database to retrieve active Karachi markets.
+            </p>
           </div>
         )}
 
-        {/* Error State */}
-        {error && (
-          <div className="bg-red-50 rounded-3xl p-6 border border-red-200 flex items-center justify-between gap-4">
-            <div>
-              <h4 className="text-sm font-bold text-red-900">Failed to load market data</h4>
-              <p className="text-xs text-red-700 mt-0.5">{error}</p>
+        {/* Error State (Section 3.J) */}
+        {error && !isLoading && (
+          <div className="bg-white rounded-3xl p-8 border border-red-200 text-center space-y-4 shadow-sm">
+            <div className="w-12 h-12 rounded-2xl bg-red-50 text-red-600 flex items-center justify-center mx-auto">
+              <X className="w-6 h-6" />
+            </div>
+            <div className="space-y-1">
+              <h3 className="text-base font-bold text-slate-900 font-['Lexend']">
+                We couldn&apos;t load the markets right now.
+              </h3>
+              <p className="text-xs text-slate-500 max-w-sm mx-auto">
+                Please check your network connection or try again.
+              </p>
             </div>
             {onRetry && (
               <button
                 onClick={onRetry}
-                className="px-4 py-2 text-xs font-semibold text-white bg-red-600 hover:bg-red-700 rounded-xl transition-colors cursor-pointer flex items-center gap-1.5"
+                className="px-5 py-2.5 text-xs font-bold text-white bg-[#1E4E8C] hover:bg-[#173e70] rounded-xl shadow-sm transition-all cursor-pointer inline-flex items-center gap-2"
               >
                 <RefreshCw className="w-3.5 h-3.5" />
-                <span>Retry</span>
+                <span>Try Again</span>
               </button>
             )}
           </div>
         )}
 
-        {/* Two-Panel Layout (Sidebar + Map) */}
+        {/* Main Content when loaded */}
         {!isLoading && !error && (
-          <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 items-start">
-            {/* Left Column: Filter & Markets List (Hidden on mobile if tab is 'map') */}
-            <div
-              className={`lg:col-span-5 space-y-4 ${
-                mobileActiveTab === 'map' ? 'hidden lg:block' : 'block'
-              }`}
-            >
-              {/* Search & Filter Card */}
-              <div className="bg-white rounded-3xl p-5 border border-slate-200/90 shadow-sm space-y-4">
-                <div className="flex items-center justify-between">
-                  <span className="text-xs font-bold uppercase tracking-wider text-slate-700 flex items-center gap-1.5">
-                    <Filter className="w-3.5 h-3.5 text-[#1E4E8C]" />
-                    Filter Markets
-                  </span>
-                  <span className="text-xs font-semibold text-[#1E4E8C] bg-blue-50 px-2 py-0.5 rounded-full border border-blue-100">
-                    {filteredMarkets.length} of {markets.length} Markets
-                  </span>
-                </div>
-
-                {/* Search input */}
-                <div className="relative">
+          <div className="space-y-6">
+            {/* 3. Search Bar & Filter Controls (Exact prompt structure) */}
+            <div className="bg-white rounded-3xl p-4 sm:p-5 border border-slate-200/90 shadow-sm space-y-3">
+              <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-3">
+                {/* Search Input */}
+                <div className="relative flex-1">
                   <Search className="w-4 h-4 text-slate-400 absolute left-3.5 top-1/2 -translate-y-1/2 pointer-events-none" />
                   <input
                     type="text"
-                    placeholder="Search by market, area, or craft..."
+                    placeholder="Search markets..."
                     value={searchQuery}
                     onChange={(e) => setSearchQuery(e.target.value)}
-                    className="w-full pl-10 pr-9 py-2.5 text-xs sm:text-sm bg-slate-50 border border-slate-200 rounded-2xl focus:outline-none focus:ring-2 focus:ring-[#3FA0C8] focus:bg-white transition-all"
+                    onFocus={() => setIsSearchFocused(true)}
+                    className="w-full pl-10 pr-9 py-2.5 text-sm bg-slate-50 border border-slate-200 rounded-2xl focus:outline-none focus:ring-2 focus:ring-[#3FA0C8] focus:bg-white transition-all text-slate-900"
                   />
                   {searchQuery && (
                     <button
-                      onClick={() => setSearchQuery('')}
-                      className="absolute right-3 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-600"
+                      onClick={handleClearSearch}
+                      title="Clear search"
+                      aria-label="Clear search"
+                      className="absolute right-3 top-1/2 -translate-y-1/2 p-1 text-slate-400 hover:text-slate-600 rounded-full hover:bg-slate-200/60 transition-colors cursor-pointer"
                     >
                       <X className="w-4 h-4" />
                     </button>
                   )}
                 </div>
 
-                {/* District Filter Pills */}
-                <div className="space-y-1.5">
-                  <label className="text-[11px] font-semibold text-slate-500 uppercase tracking-wider">
-                    Karachi District
-                  </label>
-                  <div className="flex flex-wrap gap-1.5">
-                    {districts.map((d) => {
-                      const count =
-                        d === 'All'
-                          ? markets.length
-                          : markets.filter((m) =>
-                              m.district.toLowerCase().includes(d.toLowerCase())
-                            ).length;
-                      return (
-                        <button
-                          key={d}
-                          onClick={() => setSelectedDistrict(d)}
-                          className={`px-3 py-1.5 text-xs font-semibold rounded-xl transition-all cursor-pointer flex items-center gap-1.5 ${
-                            selectedDistrict === d
-                              ? 'bg-[#1E4E8C] text-white shadow-xs'
-                              : 'bg-slate-100 text-slate-700 hover:bg-slate-200'
-                          }`}
-                        >
-                          <span>{d === 'All' ? 'All Districts' : d}</span>
-                          <span
-                            className={`text-[10px] px-1.5 py-0.2 rounded-full ${
-                              selectedDistrict === d
-                                ? 'bg-white/20 text-white'
-                                : 'bg-slate-200 text-slate-600'
-                            }`}
-                          >
-                            {count}
-                          </span>
-                        </button>
-                      );
-                    })}
-                  </div>
-                </div>
-              </div>
-
-              {/* Markets List Container */}
-              <div className="space-y-3">
-                <div className="flex items-center justify-between text-xs px-1 text-slate-500">
-                  <span>Select a market to view on map or browse shops:</span>
-                </div>
-
-                {/* Empty State */}
-                {filteredMarkets.length === 0 && (
-                  <div className="bg-white rounded-3xl p-8 border border-slate-200 text-center space-y-3 shadow-sm">
-                    <div className="w-12 h-12 rounded-2xl bg-slate-100 flex items-center justify-center mx-auto text-slate-400">
-                      <Search className="w-6 h-6" />
-                    </div>
-                    <div>
-                      <h4 className="text-sm font-bold text-slate-800 font-['Lexend']">
-                        No markets found
-                      </h4>
-                      <p className="text-xs text-slate-500 mt-1 max-w-xs mx-auto">
-                        No markets match &ldquo;{searchQuery}&rdquo; in {selectedDistrict} District.
-                      </p>
-                    </div>
+                {/* District Filter Chips */}
+                <div className="flex items-center gap-1.5 p-1 bg-slate-100 rounded-2xl overflow-x-auto shrink-0">
+                  {districts.map((d) => (
                     <button
-                      onClick={() => {
-                        setSearchQuery('');
-                        setSelectedDistrict('All');
-                      }}
-                      className="px-4 py-2 text-xs font-semibold text-[#1E4E8C] bg-blue-50 hover:bg-blue-100 rounded-xl transition-colors cursor-pointer"
-                    >
-                      Clear Filters
-                    </button>
-                  </div>
-                )}
-
-                {/* Market Cards */}
-                {filteredMarkets.map((market) => {
-                  const isSelected = selectedMarketId === market.id;
-                  return (
-                    <div
-                      key={market.id}
-                      onClick={() => handleCardClick(market)}
-                      className={`bg-white rounded-3xl p-5 border transition-all duration-200 cursor-pointer shadow-sm hover:shadow-md relative overflow-hidden group ${
-                        isSelected
-                          ? 'border-[#1E4E8C] ring-2 ring-[#3FA0C8]/30 shadow-blue-100'
-                          : 'border-slate-200/90 hover:border-[#3FA0C8]'
+                      key={d}
+                      onClick={() => setSelectedDistrict(d)}
+                      className={`px-3 py-1.5 text-xs font-semibold rounded-xl transition-all cursor-pointer whitespace-nowrap ${
+                        selectedDistrict === d
+                          ? 'bg-[#1E4E8C] text-white shadow-xs'
+                          : 'text-slate-600 hover:text-slate-900'
                       }`}
                     >
-                      {/* Active indicator bar */}
-                      {isSelected && (
-                        <div className="absolute top-0 left-0 bottom-0 w-1.5 bg-gradient-to-b from-[#1E4E8C] to-[#3FA0C8]" />
-                      )}
-
-                      <div className="space-y-3">
-                        {/* Header */}
-                        <div className="flex items-start justify-between gap-2">
-                          <div className="flex items-center gap-2.5">
-                            <div
-                              className={`w-9 h-9 rounded-xl flex items-center justify-center text-white transition-transform group-hover:scale-105 ${
-                                isSelected
-                                  ? 'bg-gradient-to-br from-[#1E4E8C] to-[#2EC4B6]'
-                                  : 'bg-gradient-to-br from-[#1E4E8C] to-[#3FA0C8]'
-                              }`}
-                            >
-                              <MapPin className="w-4 h-4" />
-                            </div>
-                            <div>
-                              <h3 className="text-base font-bold text-slate-900 font-['Lexend'] group-hover:text-[#1E4E8C] transition-colors">
-                                {market.name}
-                              </h3>
-                              <p className="text-xs text-slate-500">{market.area}</p>
-                            </div>
-                          </div>
-
-                          <span className="text-[10px] font-semibold text-[#1E4E8C] bg-blue-50 px-2.5 py-0.5 rounded-full border border-blue-100">
-                            {market.district}
-                          </span>
-                        </div>
-
-                        {/* Tagline */}
-                        <p className="text-xs text-slate-600 line-clamp-2">
-                          {market.tagline}
-                        </p>
-
-                        {/* Specialties Tags */}
-                        <div className="flex flex-wrap gap-1.5 pt-1">
-                          {market.specialties.slice(0, 3).map((item, idx) => (
-                            <span
-                              key={idx}
-                              className="text-[10px] text-slate-600 bg-slate-50 border border-slate-200/70 px-2 py-0.5 rounded-md"
-                            >
-                              {item}
-                            </span>
-                          ))}
-                        </div>
-
-                        {/* Card Footer Actions */}
-                        <div className="pt-3 border-t border-slate-100 flex items-center justify-between gap-2 text-xs">
-                          <div className="flex items-center gap-1.5 text-slate-500 font-medium">
-                            <Store className="w-3.5 h-3.5 text-[#3FA0C8]" />
-                            <span>{market.shopsCount} Shops</span>
-                            <span className="text-slate-300">·</span>
-                            <span>{market.productsCount}+ Products</span>
-                          </div>
-
-                          <button
-                            onClick={(e) => handleOpenMarketDetails(e, market)}
-                            className="px-3 py-1.5 text-xs font-semibold text-white bg-gradient-to-r from-[#1E4E8C] to-[#3FA0C8] hover:from-[#173e70] hover:to-[#358aa8] rounded-xl shadow-xs transition-transform active:scale-95 cursor-pointer flex items-center gap-1"
-                          >
-                            <span>Browse Shops</span>
-                            <ChevronRight className="w-3.5 h-3.5" />
-                          </button>
-                        </div>
-                      </div>
-                    </div>
-                  );
-                })}
+                      {d === 'All' ? 'All Districts' : d}
+                    </button>
+                  ))}
+                </div>
               </div>
+
+              {/* Instant Search Results Dropdown/Chips when typing */}
+              {searchQuery && filteredMarkets.length > 0 && (
+                <div className="pt-2 border-t border-slate-100 flex items-center justify-between flex-wrap gap-2 text-xs">
+                  <span className="text-slate-500 font-medium">
+                    Matching markets ({filteredMarkets.length}):
+                  </span>
+                  <div className="flex items-center gap-1.5 flex-wrap">
+                    {filteredMarkets.map((m) => (
+                      <button
+                        key={m.id}
+                        onClick={() => handleSelectFromSearch(m)}
+                        className={`px-2.5 py-1 rounded-lg border text-xs font-semibold transition-all cursor-pointer flex items-center gap-1.5 ${
+                          selectedMarketId === m.id
+                            ? 'bg-[#1E4E8C] text-white border-[#1E4E8C]'
+                            : 'bg-slate-50 text-slate-700 border-slate-200 hover:border-[#3FA0C8] hover:bg-white'
+                        }`}
+                      >
+                        <MapPin className="w-3 h-3 text-[#2EC4B6]" />
+                        <span>{m.name}</span>
+                        <span className={`text-[10px] ${selectedMarketId === m.id ? 'text-sky-100' : 'text-slate-400'}`}>
+                          ({m.shopsCount} shops)
+                        </span>
+                      </button>
+                    ))}
+                  </div>
+                </div>
+              )}
             </div>
 
-            {/* Right Column: Interactive Map Component (Hidden on mobile if tab is 'list') */}
-            <div
-              className={`lg:col-span-7 space-y-4 ${
-                mobileActiveTab === 'list' ? 'hidden lg:block' : 'block'
-              }`}
-            >
-              {/* Map Preview Component with exact SVG and marker coordinates */}
+            {/* Empty Search State (Section 3.K) */}
+            {searchQuery && filteredMarkets.length === 0 && (
+              <div className="bg-white rounded-3xl p-8 border border-slate-200 text-center space-y-3 shadow-sm">
+                <div className="w-12 h-12 rounded-2xl bg-slate-100 flex items-center justify-center mx-auto text-slate-400">
+                  <Search className="w-6 h-6" />
+                </div>
+                <div className="space-y-1">
+                  <h3 className="text-base font-bold text-slate-800 font-['Lexend']">
+                    No markets found
+                  </h3>
+                  <p className="text-xs text-slate-500 max-w-sm mx-auto">
+                    We couldn&apos;t find any markets matching &ldquo;{searchQuery}&rdquo;. Try another name or clear your search.
+                  </p>
+                </div>
+                <button
+                  onClick={handleClearSearch}
+                  className="px-4 py-2 text-xs font-bold text-[#1E4E8C] bg-blue-50 hover:bg-blue-100 rounded-xl transition-colors cursor-pointer"
+                >
+                  Clear Search
+                </button>
+              </div>
+            )}
+
+            {/* 4. Interactive Market Map (Primary Visual Element) */}
+            <div className="relative">
               <InteractiveMapPreview
-                markets={markets}
+                markets={filteredMarkets}
                 selectedMarketId={selectedMarketId}
                 onSelectMarket={onSelectMarket}
+                onExploreShops={onOpenShopModal}
                 onOpenDbSimulator={onOpenDbSimulator}
+                hideInspector={true} /* We use the dedicated progressive disclosure card below */
               />
+            </div>
 
-              {/* Selected Market Highlights Banner */}
-              {activeMarket && (
-                <div className="bg-white rounded-3xl p-5 border border-slate-200/90 shadow-sm flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
-                  <div className="space-y-1">
-                    <div className="flex items-center gap-2">
-                      <span className="text-xs font-bold text-[#1E4E8C] uppercase tracking-wider">
-                        Active Selection
-                      </span>
-                      <span className="text-[10px] font-semibold text-emerald-700 bg-emerald-50 px-2 py-0.5 rounded-full border border-emerald-200">
-                        ● Open Now ({activeMarket.timing})
-                      </span>
+            {/* 5. Selected Market Card / Progressive Disclosure (Section 5 & 6) */}
+            <div className="transition-all duration-300">
+              {selectedMarket ? (
+                /* Selected Market Information Card */
+                <div className="bg-white rounded-3xl p-6 sm:p-7 border-2 border-[#1E4E8C]/30 shadow-xl shadow-slate-200/80 relative overflow-hidden animate-in fade-in zoom-in-98 duration-200">
+                  {/* Subtle decorative gradient glow */}
+                  <div className="absolute top-0 left-0 right-0 h-1.5 bg-gradient-to-r from-[#1E4E8C] via-[#3FA0C8] to-[#2EC4B6]" />
+
+                  <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-6">
+                    {/* Left: Market Core Details */}
+                    <div className="space-y-3 max-w-2xl">
+                      <div className="flex items-center gap-2 flex-wrap">
+                        <span className="text-xs font-bold uppercase tracking-wider text-[#1E4E8C] bg-blue-50 px-2.5 py-0.5 rounded-full border border-blue-100">
+                          {selectedMarket.district}
+                        </span>
+                        <span className="text-xs font-semibold text-emerald-700 bg-emerald-50 px-2.5 py-0.5 rounded-full border border-emerald-200 flex items-center gap-1">
+                          <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse" />
+                          Open Now
+                        </span>
+                        <span className="text-xs text-slate-500 flex items-center gap-1">
+                          <Clock className="w-3.5 h-3.5 text-slate-400" />
+                          {selectedMarket.timing}
+                        </span>
+                      </div>
+
+                      <div>
+                        <div className="flex items-center gap-2">
+                          <h2 className="text-2xl sm:text-3xl font-extrabold text-slate-900 font-['Lexend'] tracking-tight">
+                            {selectedMarket.name} Market
+                          </h2>
+                          <div className="w-2.5 h-2.5 rounded-full bg-[#2EC4B6]" />
+                        </div>
+                        <p className="text-xs sm:text-sm font-medium text-slate-600 mt-1 flex items-center gap-1">
+                          <MapPin className="w-4 h-4 text-[#3FA0C8] shrink-0" />
+                          <span>{selectedMarket.area}, Karachi</span>
+                        </p>
+                      </div>
+
+                      <p className="text-xs sm:text-sm text-slate-600 leading-relaxed">
+                        {selectedMarket.tagline}
+                      </p>
+
+                      {/* Specialties tags */}
+                      <div className="flex flex-wrap gap-1.5 pt-1">
+                        {selectedMarket.specialties.map((item, idx) => (
+                          <span
+                            key={idx}
+                            className="text-xs font-medium text-slate-700 bg-slate-100 px-2.5 py-1 rounded-lg"
+                          >
+                            {item}
+                          </span>
+                        ))}
+                      </div>
                     </div>
-                    <h3 className="text-lg font-bold text-slate-900 font-['Lexend']">
-                      {activeMarket.name} Market ({activeMarket.area})
+
+                    {/* Right: Metrics & Primary Action Button */}
+                    <div className="flex flex-col sm:flex-row lg:flex-col items-stretch sm:items-center lg:items-end justify-between gap-4 border-t lg:border-t-0 pt-4 lg:pt-0 border-slate-100 shrink-0">
+                      {/* Shop & Product stats */}
+                      <div className="flex items-center gap-4 text-left sm:text-right">
+                        <div className="p-3 bg-blue-50/70 rounded-2xl border border-blue-100 text-center min-w-[90px]">
+                          <span className="block text-2xl font-extrabold text-[#1E4E8C] font-['Lexend'] leading-none">
+                            {selectedMarket.shopsCount}
+                          </span>
+                          <span className="text-[10px] font-semibold text-slate-500 uppercase tracking-wider mt-1 block">
+                            Shops
+                          </span>
+                        </div>
+                        <div className="p-3 bg-teal-50/70 rounded-2xl border border-teal-100 text-center min-w-[90px]">
+                          <span className="block text-2xl font-extrabold text-[#2EC4B6] font-['Lexend'] leading-none">
+                            {selectedMarket.productsCount}+
+                          </span>
+                          <span className="text-[10px] font-semibold text-slate-500 uppercase tracking-wider mt-1 block">
+                            Products
+                          </span>
+                        </div>
+                      </div>
+
+                      {/* PRIMARY ACTION BUTTON: Explore Shops */}
+                      <button
+                        onClick={() => onOpenShopModal(selectedMarket)}
+                        className="w-full sm:w-auto px-7 py-4 text-base font-bold text-white bg-gradient-to-r from-[#1E4E8C] to-[#3FA0C8] hover:from-[#173e70] hover:to-[#358aa8] rounded-2xl shadow-lg shadow-[#1E4E8C]/25 transition-all duration-200 cursor-pointer flex items-center justify-center gap-2 group active:scale-[0.98]"
+                      >
+                        <ShoppingBag className="w-5 h-5 text-sky-200" />
+                        <span>Explore Shops</span>
+                        <ChevronRight className="w-5 h-5 group-hover:translate-x-1 transition-transform" />
+                      </button>
+                    </div>
+                  </div>
+                </div>
+              ) : (
+                /* Before Selection: Progressive disclosure prompt (Section 6) */
+                <div className="bg-white rounded-3xl p-6 sm:p-8 border border-slate-200/90 text-center space-y-4 shadow-sm">
+                  <div className="w-12 h-12 rounded-2xl bg-blue-50 text-[#1E4E8C] flex items-center justify-center mx-auto">
+                    <Compass className="w-6 h-6 text-[#3FA0C8]" />
+                  </div>
+                  <div className="space-y-1">
+                    <h3 className="text-base font-bold text-slate-800 font-['Lexend']">
+                      Select a market on the map to view details
                     </h3>
-                    <p className="text-xs text-slate-500 max-w-lg">
-                      {activeMarket.tagline}
+                    <p className="text-xs text-slate-500 max-w-md mx-auto">
+                      Click any interactive market pin on the map above or pick a commercial center below to inspect verified shops.
                     </p>
                   </div>
 
-                  <div className="flex items-center gap-2 shrink-0">
-                    <button
-                      onClick={() => onOpenShopModal(activeMarket)}
-                      className="px-4 py-2.5 text-xs font-bold text-white bg-gradient-to-r from-[#1E4E8C] to-[#3FA0C8] hover:from-[#173e70] hover:to-[#358aa8] rounded-xl shadow-sm transition-all cursor-pointer flex items-center gap-1.5 active:scale-95"
-                    >
-                      <ShoppingBag className="w-4 h-4" />
-                      <span>Open Shop Directory</span>
-                      <ChevronRight className="w-3.5 h-3.5" />
-                    </button>
+                  {/* Quick Select Market Chips */}
+                  <div className="flex items-center justify-center gap-2 flex-wrap pt-1">
+                    {markets.map((m) => (
+                      <button
+                        key={m.id}
+                        onClick={() => onSelectMarket(m)}
+                        className="px-3.5 py-1.5 text-xs font-semibold text-slate-700 bg-slate-50 hover:bg-blue-50 hover:text-[#1E4E8C] border border-slate-200 hover:border-[#3FA0C8] rounded-xl transition-all cursor-pointer flex items-center gap-1.5"
+                      >
+                        <span className="w-1.5 h-1.5 rounded-full bg-[#2EC4B6]" />
+                        <span>{m.name}</span>
+                        <span className="text-[10px] text-slate-400">({m.shopsCount} shops)</span>
+                      </button>
+                    ))}
                   </div>
                 </div>
               )}

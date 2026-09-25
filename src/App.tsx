@@ -58,6 +58,10 @@ export default function App() {
 
   const handleSelectMarket = (market: Market) => {
     setSelectedMarketId(market.id);
+  };
+
+  const handleOpenShopModal = (market: Market) => {
+    setSelectedMarketId(market.id);
     setInspectingMarket(market);
   };
 
@@ -110,7 +114,7 @@ export default function App() {
             <HeroSection
               markets={markets}
               selectedMarketId={selectedMarketId}
-              onSelectMarket={handleSelectMarket}
+              onSelectMarket={handleOpenShopModal}
               onExploreMarketsClick={() => setCurrentView('map')}
               onExploreMapClick={() => setCurrentView('map')}
               onOpenDbSimulator={() => setIsDbSimulatorOpen(true)}
@@ -119,7 +123,7 @@ export default function App() {
             {/* Dynamic Markets Directory */}
             <MarketsDirectorySection
               markets={markets}
-              onSelectMarket={handleSelectMarket}
+              onSelectMarket={handleOpenShopModal}
               onOpenDbSimulator={() => setIsDbSimulatorOpen(true)}
             />
 
@@ -127,7 +131,7 @@ export default function App() {
             <HowItWorks
               onStepClick={(step) => {
                 if (step === 1) setCurrentView('map');
-                if (step === 2 && markets.length > 0) handleSelectMarket(markets[0]);
+                if (step === 2 && markets.length > 0) handleOpenShopModal(markets[0]);
               }}
             />
 

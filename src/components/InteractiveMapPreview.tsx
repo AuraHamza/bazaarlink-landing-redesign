@@ -1,33 +1,48 @@
-import React, { useState } from 'react';
+import React, { useState, useRef, useEffect, useCallback } from 'react';
 import { Market } from '../types/market';
 import { 
   MapPin, 
   Store, 
   ExternalLink, 
-  Navigation, 
   Layers, 
-  Info,
-  Clock,
-  Compass,
-  CheckCircle2,
-  ChevronRight
+  Clock, 
+  Compass, 
+  ChevronRight,
+  ZoomIn,
+  ZoomOut,
+  RotateCcw,
+  Move
 } from 'lucide-react';
 
 interface InteractiveMapPreviewProps {
   markets: Market[];
   selectedMarketId: number | null;
   onSelectMarket: (market: Market) => void;
+  onExploreShops?: (market: Market) => void;
   onOpenDbSimulator?: () => void;
+  hideBottomBar?: boolean;
+  hideInspector?: boolean;
 }
 
 export const InteractiveMapPreview: React.FC<InteractiveMapPreviewProps> = ({
   markets,
   selectedMarketId,
   onSelectMarket,
+  onExploreShops,
   onOpenDbSimulator,
+  hideBottomBar = false,
+  hideInspector = false,
 }) => {
   const [hoveredMarketId, setHoveredMarketId] = useState<number | null>(null);
   const [activeDistrictFilter, setActiveDistrictFilter] = useState<string>('All');
+  
+  // Pan and Zoom state
+  const [zoom, setZoom] = useState<number>(1);
+  const [pan, setPan] = useState<{ x: number; y: number }>({ x: 0, y: 0 });
+  const [isDragging, setIsDragging] = useState<boolean>(false);
+  const dragStartRef = useRef<{ x: number; y: number }>({ x: 0, y: 0 });
+  const panStartRef = useRef<{ x: number; y: number }>({ x: 0, y: 0 });
+  const containerRef = useRef<HTMLDivElement>(null);
 
   const districts = ['All', 'Central', 'East', 'South'];
 
@@ -37,6 +52,92 @@ export const InteractiveMapPreview: React.FC<InteractiveMapPreviewProps> = ({
   });
 
   const activeMarket = markets.find((m) => m.id === (hoveredMarketId || selectedMarketId)) || markets[0];
+
+  const handleZoomIn = () => {
+    setZoom((prev) => Math.min(prev + 0.25, 2.4));
+  };
+
+  const handleZoomOut = () => {
+    setZoom((prev) => Math.max(prev - 0.25, 0.85));
+  };
+
+  const handleResetView = () => {
+    setZoom(1);
+    setPan({ x: 0, y: 0 });
+  };
+
+  // Center pan when a market is selected
+  const centerOnMarket = useCallback((market: Market) => {
+    if (!containerRef.current) return;
+    const width = containerRef.current.clientWidth;
+    const height = containerRef.current.clientHeight;
+    // Calculate market pixel position relative to 1000x650 viewport
+    const targetX = (market.mapX / 100) * width;
+    const targetY = (market.mapY / 100) * height;
+    const centerX = width / 2;
+    const centerY = height / 2;
+    setPan({
+      x: (centerX - targetX) * 0.5,
+      y: (centerY - targetY) * 0.5,
+    });
+  }, []);
+
+  useEffect(() => {
+    if (selectedMarketId) {
+      const selected = markets.find((m) => m.id === selectedMarketId);
+      if (selected && zoom > 1.1) {
+        centerOnMarket(selected);
+      }
+    }
+  }, [selectedMarketId, markets, zoom, centerOnMarket]);
+
+  // Mouse pan handlers
+  const handleMouseDown = (e: React.MouseEvent) => {
+    // Only drag with left mouse button and not on interactive buttons
+    if (e.button !== 0) return;
+    if ((e.target as HTMLElement).closest('button')) return;
+    setIsDragging(true);
+    dragStartRef.current = { x: e.clientX, y: e.clientY };
+    panStartRef.current = { ...pan };
+  };
+
+  const handleMouseMove = (e: React.MouseEvent) => {
+    if (!isDragging) return;
+    const dx = e.clientX - dragStartRef.current.x;
+    const dy = e.clientY - dragStartRef.current.y;
+    setPan({
+      x: panStartRef.current.x + dx,
+      y: panStartRef.current.y + dy,
+    });
+  };
+
+  const handleMouseUp = () => {
+    setIsDragging(false);
+  };
+
+  // Touch pan handlers
+  const handleTouchStart = (e: React.TouchEvent) => {
+    if ((e.target as HTMLElement).closest('button')) return;
+    if (e.touches.length === 1) {
+      setIsDragging(true);
+      dragStartRef.current = { x: e.touches[0].clientX, y: e.touches[0].clientY };
+      panStartRef.current = { ...pan };
+    }
+  };
+
+  const handleTouchMove = (e: React.TouchEvent) => {
+    if (!isDragging || e.touches.length !== 1) return;
+    const dx = e.touches[0].clientX - dragStartRef.current.x;
+    const dy = e.touches[0].clientY - dragStartRef.current.y;
+    setPan({
+      x: panStartRef.current.x + dx,
+      y: panStartRef.current.y + dy,
+    });
+  };
+
+  const handleTouchEnd = () => {
+    setIsDragging(false);
+  };
 
   return (
     <div className="w-full bg-white rounded-3xl border border-slate-200/90 shadow-xl shadow-slate-200/60 overflow-hidden flex flex-col">
@@ -92,210 +193,278 @@ export const InteractiveMapPreview: React.FC<InteractiveMapPreviewProps> = ({
         </div>
       </div>
 
-      {/* Main Map Canvas Area */}
-      <div className="relative w-full h-[420px] sm:h-[480px] lg:h-[520px] bg-gradient-to-b from-[#f1f5f9] to-[#e2e8f0] overflow-hidden select-none">
-        {/* Realistic Stylized Karachi City SVG Map Backdrop */}
-        <svg
-          className="absolute inset-0 w-full h-full object-cover pointer-events-none"
-          viewBox="0 0 1000 650"
-          preserveAspectRatio="none"
-          xmlns="http://www.w3.org/2000/svg"
+      {/* Main Map Canvas Area with Drag & Pan */}
+      <div 
+        ref={containerRef}
+        onMouseDown={handleMouseDown}
+        onMouseMove={handleMouseMove}
+        onMouseUp={handleMouseUp}
+        onMouseLeave={handleMouseUp}
+        onTouchStart={handleTouchStart}
+        onTouchMove={handleTouchMove}
+        onTouchEnd={handleTouchEnd}
+        className={`relative w-full h-[420px] sm:h-[480px] lg:h-[540px] bg-gradient-to-b from-[#f1f5f9] to-[#e2e8f0] overflow-hidden select-none ${
+          isDragging ? 'cursor-grabbing' : 'cursor-grab'
+        }`}
+      >
+        {/* Transformable Map Canvas Layer */}
+        <div 
+          style={{
+            transform: `translate(${pan.x}px, ${pan.y}px) scale(${zoom})`,
+            transformOrigin: '50% 50%',
+            transition: isDragging ? 'none' : 'transform 0.25s ease-out',
+          }}
+          className="absolute inset-0 w-full h-full"
         >
-          <defs>
-            {/* Coastal gradient */}
-            <linearGradient id="seaGradient" x1="0%" y1="100%" x2="40%" y2="40%">
-              <stop offset="0%" stopColor="#bae6fd" stopOpacity="0.45" />
-              <stop offset="60%" stopColor="#e0f2fe" stopOpacity="0.25" />
-              <stop offset="100%" stopColor="#f8fafc" stopOpacity="0" />
-            </linearGradient>
+          {/* Stylized Karachi City SVG Map Backdrop */}
+          <svg
+            className="absolute inset-0 w-full h-full object-cover pointer-events-none"
+            viewBox="0 0 1000 650"
+            preserveAspectRatio="none"
+            xmlns="http://www.w3.org/2000/svg"
+          >
+            <defs>
+              {/* Coastal gradient */}
+              <linearGradient id="seaGradient" x1="0%" y1="100%" x2="40%" y2="40%">
+                <stop offset="0%" stopColor="#bae6fd" stopOpacity="0.45" />
+                <stop offset="60%" stopColor="#e0f2fe" stopOpacity="0.25" />
+                <stop offset="100%" stopColor="#f8fafc" stopOpacity="0" />
+              </linearGradient>
 
-            {/* Subtle grid pattern */}
-            <pattern id="cityGrid" width="40" height="40" patternUnits="userSpaceOnUse">
-              <path d="M 40 0 L 0 0 0 40" fill="none" stroke="#cbd5e1" strokeWidth="0.5" strokeOpacity="0.4" />
-            </pattern>
-          </defs>
+              {/* Subtle grid pattern */}
+              <pattern id="cityGrid" width="40" height="40" patternUnits="userSpaceOnUse">
+                <path d="M 40 0 L 0 0 0 40" fill="none" stroke="#cbd5e1" strokeWidth="0.5" strokeOpacity="0.4" />
+              </pattern>
+            </defs>
 
-          {/* Grid lines */}
-          <rect width="1000" height="650" fill="url(#cityGrid)" />
+            {/* Grid lines */}
+            <rect width="1000" height="650" fill="url(#cityGrid)" />
 
-          {/* Arabian Sea Coastline (South-West) */}
-          <path
-            d="M 0,420 Q 120,440 220,490 T 380,560 T 560,650 L 0,650 Z"
-            fill="url(#seaGradient)"
-          />
-          <path
-            d="M 0,420 Q 120,440 220,490 T 380,560 T 560,650"
-            fill="none"
-            stroke="#7dd3fc"
-            strokeWidth="2.5"
-            strokeDasharray="6 3"
-          />
+            {/* Arabian Sea Coastline (South-West) */}
+            <path
+              d="M 0,420 Q 120,440 220,490 T 380,560 T 560,650 L 0,650 Z"
+              fill="url(#seaGradient)"
+            />
+            <path
+              d="M 0,420 Q 120,440 220,490 T 380,560 T 560,650"
+              fill="none"
+              stroke="#7dd3fc"
+              strokeWidth="2.5"
+              strokeDasharray="6 3"
+            />
 
-          {/* Manora Island / Sandspit contour */}
-          <path
-            d="M 80,580 Q 140,550 200,590 Q 230,620 180,630 Z"
-            fill="#e2e8f0"
-            stroke="#94a3b8"
-            strokeWidth="1.2"
-          />
+            {/* Manora Island / Sandspit contour */}
+            <path
+              d="M 80,580 Q 140,550 200,590 Q 230,620 180,630 Z"
+              fill="#e2e8f0"
+              stroke="#94a3b8"
+              strokeWidth="1.2"
+            />
 
-          {/* Major Karachi Arteries & Expressways */}
-          {/* Lyari River / Expressway */}
-          <path
-            d="M 50,380 Q 220,360 420,340 T 700,280"
-            fill="none"
-            stroke="#93c5fd"
-            strokeWidth="3.5"
-            strokeOpacity="0.5"
-          />
+            {/* Major Karachi Arteries & Expressways */}
+            {/* Lyari River / Expressway */}
+            <path
+              d="M 50,380 Q 220,360 420,340 T 700,280"
+              fill="none"
+              stroke="#93c5fd"
+              strokeWidth="3.5"
+              strokeOpacity="0.5"
+            />
 
-          {/* Sher Shah Suri Rd (Leading to Nazimabad / Haideri in North) */}
-          <path
-            d="M 380,480 L 410,340 L 430,220 L 450,100"
-            fill="none"
-            stroke="#cbd5e1"
-            strokeWidth="3.5"
-          />
-          <path
-            d="M 410,340 L 430,220 L 450,100"
-            fill="none"
-            stroke="#3FA0C8"
-            strokeWidth="1.8"
-            strokeOpacity="0.7"
-          />
+            {/* Sher Shah Suri Rd (Leading to Nazimabad / Haideri in North) */}
+            <path
+              d="M 380,480 L 410,340 L 430,220 L 450,100"
+              fill="none"
+              stroke="#cbd5e1"
+              strokeWidth="3.5"
+            />
+            <path
+              d="M 410,340 L 430,220 L 450,100"
+              fill="none"
+              stroke="#3FA0C8"
+              strokeWidth="1.8"
+              strokeOpacity="0.7"
+            />
 
-          {/* Shahrah-e-Faisal (Connecting Saddar to PECHS Tariq Rd and Airport) */}
-          <path
-            d="M 360,480 Q 480,420 640,360 T 920,290"
-            fill="none"
-            stroke="#cbd5e1"
-            strokeWidth="4"
-          />
-          <path
-            d="M 360,480 Q 480,420 640,360 T 920,290"
-            fill="none"
-            stroke="#1E4E8C"
-            strokeWidth="1.8"
-            strokeOpacity="0.6"
-          />
+            {/* Shahrah-e-Faisal (Connecting Saddar to PECHS Tariq Rd and Airport) */}
+            <path
+              d="M 360,480 Q 480,420 640,360 T 920,290"
+              fill="none"
+              stroke="#cbd5e1"
+              strokeWidth="4"
+            />
+            <path
+              d="M 360,480 Q 480,420 640,360 T 920,290"
+              fill="none"
+              stroke="#1E4E8C"
+              strokeWidth="1.8"
+              strokeOpacity="0.6"
+            />
 
-          {/* M.A. Jinnah Road (Saddar to Central) */}
-          <path
-            d="M 350,510 L 415,410 L 480,310"
-            fill="none"
-            stroke="#cbd5e1"
-            strokeWidth="3"
-          />
+            {/* M.A. Jinnah Road (Saddar to Central) */}
+            <path
+              d="M 350,510 L 415,410 L 480,310"
+              fill="none"
+              stroke="#cbd5e1"
+              strokeWidth="3"
+            />
 
-          {/* University Road */}
-          <path
-            d="M 480,310 Q 640,240 850,210"
-            fill="none"
-            stroke="#e2e8f0"
-            strokeWidth="2.5"
-          />
+            {/* University Road */}
+            <path
+              d="M 480,310 Q 640,240 850,210"
+              fill="none"
+              stroke="#e2e8f0"
+              strokeWidth="2.5"
+            />
 
-          {/* Geographic Text Landmarks */}
-          <text x="50" y="600" fill="#0284c7" fontSize="13" fontWeight="600" opacity="0.65" letterSpacing="2">
-            ARABIAN SEA / CLIFTON
-          </text>
-          <text x="320" y="140" fill="#64748b" fontSize="12" fontWeight="600" opacity="0.6" letterSpacing="1.5">
-            DISTRICT CENTRAL
-          </text>
-          <text x="680" y="320" fill="#64748b" fontSize="12" fontWeight="600" opacity="0.6" letterSpacing="1.5">
-            DISTRICT EAST
-          </text>
-          <text x="260" y="470" fill="#64748b" fontSize="12" fontWeight="600" opacity="0.6" letterSpacing="1.5">
-            DISTRICT SOUTH (SADDAR)
-          </text>
-        </svg>
+            {/* Geographic Text Landmarks */}
+            <text x="50" y="600" fill="#0284c7" fontSize="13" fontWeight="600" opacity="0.65" letterSpacing="2">
+              ARABIAN SEA / CLIFTON
+            </text>
+            <text x="320" y="140" fill="#64748b" fontSize="12" fontWeight="600" opacity="0.6" letterSpacing="1.5">
+              DISTRICT CENTRAL
+            </text>
+            <text x="680" y="320" fill="#64748b" fontSize="12" fontWeight="600" opacity="0.6" letterSpacing="1.5">
+              DISTRICT EAST
+            </text>
+            <text x="260" y="470" fill="#64748b" fontSize="12" fontWeight="600" opacity="0.6" letterSpacing="1.5">
+              DISTRICT SOUTH (SADDAR)
+            </text>
+          </svg>
 
-        {/* Live Dynamic Markers Layer (Database Driven) */}
-        {filteredMarkets.map((market) => {
-          const isSelected = selectedMarketId === market.id;
-          const isHovered = hoveredMarketId === market.id;
+          {/* Live Dynamic Markers Layer (Database Driven) */}
+          {filteredMarkets.map((market) => {
+            const isSelected = selectedMarketId === market.id;
+            const isHovered = hoveredMarketId === market.id;
 
-          return (
-            <div
-              key={market.id}
-              style={{
-                left: `${market.mapX}%`,
-                top: `${market.mapY}%`,
-                transform: 'translate(-50%, -50%)',
-              }}
-              className="absolute z-20 transition-all duration-300 group"
-              onMouseEnter={() => setHoveredMarketId(market.id)}
-              onMouseLeave={() => setHoveredMarketId(null)}
-              onClick={() => onSelectMarket(market)}
-            >
-              {/* Outer pulsing radar ring */}
-              <div className="absolute inset-0 -m-3 rounded-full bg-[#3FA0C8]/30 animate-ping-subtle pointer-events-none" />
-
-              {/* Interactive Market Pin Button */}
-              <button
-                className={`relative flex items-center gap-2 px-3 py-1.5 rounded-full shadow-lg border transition-all duration-200 cursor-pointer ${
-                  isSelected || isHovered
-                    ? 'bg-[#1E4E8C] text-white border-white scale-110 shadow-[#1E4E8C]/30 z-30'
-                    : 'bg-white text-slate-800 border-slate-200 hover:border-[#3FA0C8] shadow-slate-300/40'
-                }`}
+            return (
+              <div
+                key={market.id}
+                style={{
+                  left: `${market.mapX}%`,
+                  top: `${market.mapY}%`,
+                  transform: 'translate(-50%, -50%)',
+                }}
+                className="absolute z-20 transition-all duration-200 group"
+                onMouseEnter={() => setHoveredMarketId(market.id)}
+                onMouseLeave={() => setHoveredMarketId(null)}
+                onClick={(e) => {
+                  e.stopPropagation();
+                  onSelectMarket(market);
+                }}
               >
-                <div
-                  className={`w-6 h-6 rounded-full flex items-center justify-center transition-colors ${
-                    isSelected || isHovered
-                      ? 'bg-[#2EC4B6] text-white'
-                      : 'bg-gradient-to-tr from-[#1E4E8C] to-[#3FA0C8] text-white'
+                {/* Outer pulsing radar ring */}
+                <div className={`absolute inset-0 -m-3 rounded-full pointer-events-none ${
+                  isSelected ? 'bg-[#2EC4B6]/40 animate-ping-subtle' : 'bg-[#3FA0C8]/25'
+                }`} />
+
+                {/* Interactive Market Pin Button */}
+                <button
+                  className={`relative flex items-center gap-2 px-3 py-1.5 rounded-full shadow-lg border transition-all duration-200 cursor-pointer ${
+                    isSelected
+                      ? 'bg-[#1E4E8C] text-white border-[#2EC4B6] ring-2 ring-[#2EC4B6]/60 scale-110 shadow-[#1E4E8C]/40 z-30'
+                      : isHovered
+                      ? 'bg-[#1E4E8C] text-white border-white scale-105 shadow-[#1E4E8C]/30 z-30'
+                      : 'bg-white text-slate-800 border-slate-200 hover:border-[#3FA0C8] shadow-slate-300/40'
                   }`}
                 >
-                  <MapPin className="w-3.5 h-3.5" />
-                </div>
-                <div className="flex flex-col text-left">
-                  <span className="text-xs font-bold leading-tight font-['Lexend'] tracking-tight">
-                    {market.name}
-                  </span>
-                  <span
-                    className={`text-[10px] leading-tight ${
-                      isSelected || isHovered ? 'text-sky-100' : 'text-slate-500'
+                  <div
+                    className={`w-6 h-6 rounded-full flex items-center justify-center transition-colors ${
+                      isSelected
+                        ? 'bg-[#2EC4B6] text-white font-bold'
+                        : isHovered
+                        ? 'bg-[#3FA0C8] text-white'
+                        : 'bg-gradient-to-tr from-[#1E4E8C] to-[#3FA0C8] text-white'
                     }`}
                   >
-                    {market.shopsCount} Shops
-                  </span>
-                </div>
-              </button>
+                    <MapPin className="w-3.5 h-3.5" />
+                  </div>
+                  <div className="flex flex-col text-left">
+                    <span className="text-xs font-bold leading-tight font-['Lexend'] tracking-tight">
+                      {market.name}
+                    </span>
+                    <span
+                      className={`text-[10px] leading-tight ${
+                        isSelected || isHovered ? 'text-sky-100' : 'text-slate-500'
+                      }`}
+                    >
+                      {market.shopsCount} Shops
+                    </span>
+                  </div>
+                </button>
 
-              {/* Hover Tooltip Preview Card */}
-              {isHovered && (
-                <div className="absolute bottom-full left-1/2 -translate-x-1/2 mb-3 w-64 p-3.5 bg-white/95 backdrop-blur-md rounded-2xl shadow-xl border border-slate-200 text-left z-40 animate-in fade-in zoom-in-95 duration-150">
-                  <div className="flex items-start justify-between gap-2 mb-1.5">
-                    <div>
-                      <h4 className="text-sm font-bold text-slate-900 font-['Lexend']">
-                        {market.name}
-                      </h4>
-                      <p className="text-[11px] text-slate-500">{market.area}</p>
+                {/* Hover Tooltip Preview Card */}
+                {isHovered && !isSelected && (
+                  <div className="absolute bottom-full left-1/2 -translate-x-1/2 mb-3 w-64 p-3.5 bg-white/95 backdrop-blur-md rounded-2xl shadow-xl border border-slate-200 text-left z-40 animate-in fade-in zoom-in-95 duration-150">
+                    <div className="flex items-start justify-between gap-2 mb-1.5">
+                      <div>
+                        <h4 className="text-sm font-bold text-slate-900 font-['Lexend']">
+                          {market.name}
+                        </h4>
+                        <p className="text-[11px] text-slate-500">{market.area}</p>
+                      </div>
+                      <span className="text-[10px] font-semibold text-[#1E4E8C] bg-blue-50 px-2 py-0.5 rounded-full border border-blue-100">
+                        {market.district}
+                      </span>
                     </div>
-                    <span className="text-[10px] font-semibold text-[#1E4E8C] bg-blue-50 px-2 py-0.5 rounded-full border border-blue-100">
-                      {market.district}
-                    </span>
+                    <p className="text-xs text-slate-600 line-clamp-2 mb-2">
+                      {market.tagline}
+                    </p>
+                    <div className="pt-2 border-t border-slate-100 flex items-center justify-between text-xs">
+                      <span className="text-slate-500 font-medium">
+                        {market.shopsCount} verified shops
+                      </span>
+                      <span className="text-[#3FA0C8] font-semibold flex items-center gap-1 group-hover:underline">
+                        Select
+                        <ExternalLink className="w-3 h-3" />
+                      </span>
+                    </div>
                   </div>
-                  <p className="text-xs text-slate-600 line-clamp-2 mb-2">
-                    {market.tagline}
-                  </p>
-                  <div className="pt-2 border-t border-slate-100 flex items-center justify-between text-xs">
-                    <span className="text-slate-500 font-medium">
-                      {market.shopsCount} verified shops
-                    </span>
-                    <span className="text-[#3FA0C8] font-semibold flex items-center gap-1 group-hover:underline">
-                      Explore
-                      <ExternalLink className="w-3 h-3" />
-                    </span>
-                  </div>
-                </div>
-              )}
-            </div>
-          );
-        })}
+                )}
+              </div>
+            );
+          })}
+        </div>
 
-        {/* Floating Active Market Inspector Drawer (Bottom Left) */}
-        {activeMarket && (
+        {/* Map Control Tools (Zoom In, Zoom Out, Reset, Pan Hint) */}
+        <div className="absolute top-4 left-4 flex flex-col gap-1.5 z-30">
+          <div className="bg-white/95 backdrop-blur-md rounded-2xl border border-slate-200/90 shadow-md p-1 flex flex-col gap-1">
+            <button
+              onClick={handleZoomIn}
+              title="Zoom In"
+              aria-label="Zoom In"
+              className="w-8 h-8 rounded-xl bg-white hover:bg-slate-100 flex items-center justify-center text-slate-700 hover:text-[#1E4E8C] transition-colors cursor-pointer"
+            >
+              <ZoomIn className="w-4 h-4" />
+            </button>
+            <div className="w-full h-px bg-slate-100" />
+            <button
+              onClick={handleZoomOut}
+              title="Zoom Out"
+              aria-label="Zoom Out"
+              className="w-8 h-8 rounded-xl bg-white hover:bg-slate-100 flex items-center justify-center text-slate-700 hover:text-[#1E4E8C] transition-colors cursor-pointer"
+            >
+              <ZoomOut className="w-4 h-4" />
+            </button>
+            <div className="w-full h-px bg-slate-100" />
+            <button
+              onClick={handleResetView}
+              title="Reset View"
+              aria-label="Reset View"
+              className="w-8 h-8 rounded-xl bg-white hover:bg-slate-100 flex items-center justify-center text-slate-700 hover:text-[#1E4E8C] transition-colors cursor-pointer"
+            >
+              <RotateCcw className="w-3.5 h-3.5" />
+            </button>
+          </div>
+
+          <div className="hidden sm:flex items-center gap-1.5 px-2.5 py-1 bg-white/90 backdrop-blur-md rounded-xl border border-slate-200 text-[10px] text-slate-500 shadow-2xs">
+            <Move className="w-3 h-3 text-[#3FA0C8]" />
+            <span>Drag to Pan</span>
+          </div>
+        </div>
+
+        {/* Floating Active Market Inspector Drawer (Bottom Left - optional) */}
+        {!hideInspector && activeMarket && (
           <div className="absolute bottom-4 left-4 right-4 sm:right-auto sm:max-w-sm bg-white/95 backdrop-blur-md rounded-2xl p-4 border border-slate-200/90 shadow-xl z-20 transition-all">
             <div className="flex items-start justify-between gap-3">
               <div>
@@ -342,10 +511,13 @@ export const InteractiveMapPreview: React.FC<InteractiveMapPreviewProps> = ({
                 <span>{activeMarket.timing}</span>
               </div>
               <button
-                onClick={() => onSelectMarket(activeMarket)}
+                onClick={() => {
+                  onSelectMarket(activeMarket);
+                  onExploreShops?.(activeMarket);
+                }}
                 className="px-3.5 py-1.5 text-xs font-semibold text-white bg-gradient-to-r from-[#1E4E8C] to-[#3FA0C8] hover:from-[#173e70] hover:to-[#358aa8] rounded-xl shadow-xs transition-all cursor-pointer flex items-center gap-1.5 active:scale-95"
               >
-                <span>Browse Shops</span>
+                <span>Explore Shops</span>
                 <ChevronRight className="w-3.5 h-3.5" />
               </button>
             </div>
@@ -355,32 +527,34 @@ export const InteractiveMapPreview: React.FC<InteractiveMapPreviewProps> = ({
         {/* Database Reactive Logic Explainer Badge (Top Right) */}
         <div className="hidden lg:flex absolute top-4 right-4 items-center gap-2 bg-white/90 backdrop-blur-md px-3 py-1.5 rounded-xl border border-slate-200 text-xs text-slate-600 shadow-sm pointer-events-none">
           <span className="w-2 h-2 rounded-full bg-[#2EC4B6]" />
-          <span>Dynamic DB node binding: <strong className="font-mono text-slate-900">status = &apos;active&apos;</strong></span>
+          <span>Dynamic DB markers: <strong className="font-mono text-slate-900">status = &apos;active&apos;</strong></span>
         </div>
       </div>
 
       {/* Bottom Market Quick-Bar */}
-      <div className="px-5 py-3.5 bg-white border-t border-slate-100 flex items-center justify-between flex-wrap gap-3">
-        <div className="text-xs text-slate-500">
-          Click any market node to inspect local shops or select below:
+      {!hideBottomBar && (
+        <div className="px-5 py-3.5 bg-white border-t border-slate-100 flex items-center justify-between flex-wrap gap-3">
+          <div className="text-xs text-slate-500">
+            Click any market node to inspect local shops or select below:
+          </div>
+          <div className="flex items-center gap-2 flex-wrap">
+            {markets.map((m) => (
+              <button
+                key={m.id}
+                onClick={() => onSelectMarket(m)}
+                className={`px-3 py-1 text-xs font-medium rounded-lg border transition-all cursor-pointer flex items-center gap-1.5 ${
+                  selectedMarketId === m.id
+                    ? 'bg-blue-50 text-[#1E4E8C] border-[#1E4E8C] font-semibold'
+                    : 'bg-white text-slate-700 border-slate-200 hover:border-[#3FA0C8]'
+                }`}
+              >
+                <span className="w-1.5 h-1.5 rounded-full bg-[#2EC4B6]" />
+                {m.name}
+              </button>
+            ))}
+          </div>
         </div>
-        <div className="flex items-center gap-2 flex-wrap">
-          {markets.map((m) => (
-            <button
-              key={m.id}
-              onClick={() => onSelectMarket(m)}
-              className={`px-3 py-1 text-xs font-medium rounded-lg border transition-all cursor-pointer flex items-center gap-1.5 ${
-                selectedMarketId === m.id
-                  ? 'bg-blue-50 text-[#1E4E8C] border-[#1E4E8C] font-semibold'
-                  : 'bg-white text-slate-700 border-slate-200 hover:border-[#3FA0C8]'
-              }`}
-            >
-              <span className="w-1.5 h-1.5 rounded-full bg-[#2EC4B6]" />
-              {m.name}
-            </button>
-          ))}
-        </div>
-      </div>
+      )}
     </div>
   );
 };
