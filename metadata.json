@@ -1,0 +1,6 @@
+{
+  "name": "BazaarLink - Karachi Local Market Explorer",
+  "description": "Discover Karachi's local markets, shops, and products through an interactive map.",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}
