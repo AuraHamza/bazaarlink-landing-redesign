@@ -17,9 +17,11 @@ import { MarketDetailModal } from './components/MarketDetailModal';
 import { DbSimulatorModal } from './components/DbSimulatorModal';
 import { AuthModal } from './components/AuthModal';
 import { LoadingScreen } from './components/LoadingScreen';
+import { MapPage } from './components/MapPage';
 
 export default function App() {
   const [isLoading, setIsLoading] = useState(true);
+  const [currentView, setCurrentView] = useState<'landing' | 'map'>('landing');
   const [markets, setMarkets] = useState<Market[]>([]);
   const [selectedMarketId, setSelectedMarketId] = useState<number | null>(null);
   const [inspectingMarket, setInspectingMarket] = useState<Market | null>(null);
@@ -28,13 +30,20 @@ export default function App() {
     mode: 'login',
   });
   const [isDbSimulatorOpen, setIsDbSimulatorOpen] = useState(false);
+  const [apiError, setApiError] = useState<string | null>(null);
 
   // Load active markets from simulated API
   const refreshMarkets = async () => {
-    const active = await marketApi.getMarkets();
-    setMarkets(active);
-    if (active.length > 0 && (!selectedMarketId || !active.some((m) => m.id === selectedMarketId))) {
-      setSelectedMarketId(active[0].id);
+    try {
+      setApiError(null);
+      const active = await marketApi.getMarkets();
+      setMarkets(active);
+      if (active.length > 0 && (!selectedMarketId || !active.some((m) => m.id === selectedMarketId))) {
+        setSelectedMarketId(active[0].id);
+      }
+    } catch (err: unknown) {
+      const message = err instanceof Error ? err.message : 'Failed to retrieve markets';
+      setApiError(message);
     }
   };
 
@@ -68,55 +77,87 @@ export default function App() {
 
       {/* 1. Sticky Navbar */}
       <Navbar
+        currentView={currentView}
+        onNavigateView={(v) => setCurrentView(v)}
         onOpenAuth={(mode) => setAuthModalState({ isOpen: true, mode })}
         onNavigateToSection={handleScrollToSection}
-        onExploreMarkets={() => handleScrollToSection('markets-preview')}
+        onExploreMarkets={() => {
+          if (currentView === 'map') {
+            // Already on map/markets page
+          } else {
+            handleScrollToSection('markets-preview');
+          }
+        }}
       />
 
       <main className="flex-1">
-        {/* 2 & 3 & 4. Hero Section with Interactive Map Preview and Dynamic Stats */}
-        <HeroSection
-          markets={markets}
-          selectedMarketId={selectedMarketId}
-          onSelectMarket={handleSelectMarket}
-          onExploreMarketsClick={() => handleScrollToSection('markets-preview')}
-          onExploreMapClick={() => handleScrollToSection('map-section')}
-          onOpenDbSimulator={() => setIsDbSimulatorOpen(true)}
-        />
+        {currentView === 'map' ? (
+          /* Redesigned Dedicated BazaarLink Map / Markets Page */
+          <MapPage
+            markets={markets}
+            selectedMarketId={selectedMarketId}
+            onSelectMarket={handleSelectMarket}
+            onOpenShopModal={(market) => setInspectingMarket(market)}
+            onOpenDbSimulator={() => setIsDbSimulatorOpen(true)}
+            onNavigateHome={() => setCurrentView('landing')}
+            error={apiError}
+            onRetry={refreshMarkets}
+          />
+        ) : (
+          /* Landing Page Experience */
+          <>
+            {/* 2 & 3 & 4. Hero Section with Interactive Map Preview and Dynamic Stats */}
+            <HeroSection
+              markets={markets}
+              selectedMarketId={selectedMarketId}
+              onSelectMarket={handleSelectMarket}
+              onExploreMarketsClick={() => setCurrentView('map')}
+              onExploreMapClick={() => setCurrentView('map')}
+              onOpenDbSimulator={() => setIsDbSimulatorOpen(true)}
+            />
 
-        {/* Dynamic Markets Directory */}
-        <MarketsDirectorySection
-          markets={markets}
-          onSelectMarket={handleSelectMarket}
-          onOpenDbSimulator={() => setIsDbSimulatorOpen(true)}
-        />
+            {/* Dynamic Markets Directory */}
+            <MarketsDirectorySection
+              markets={markets}
+              onSelectMarket={handleSelectMarket}
+              onOpenDbSimulator={() => setIsDbSimulatorOpen(true)}
+            />
 
-        {/* 5. "How BazaarLink Works" (Market -> Shop -> Product -> Order) */}
-        <HowItWorks
-          onStepClick={(step) => {
-            if (step === 1) handleScrollToSection('map-section');
-            if (step === 2 && markets.length > 0) handleSelectMarket(markets[0]);
-          }}
-        />
+            {/* 5. "How BazaarLink Works" (Market -> Shop -> Product -> Order) */}
+            <HowItWorks
+              onStepClick={(step) => {
+                if (step === 1) setCurrentView('map');
+                if (step === 2 && markets.length > 0) handleSelectMarket(markets[0]);
+              }}
+            />
 
-        {/* 6. Features Section: "Everything you need to shop locally" */}
-        <FeaturesSection
-          onExploreMarkets={() => handleScrollToSection('markets-preview')}
-          onExploreMap={() => handleScrollToSection('map-section')}
-        />
+            {/* 6. Features Section: "Everything you need to shop locally" */}
+            <FeaturesSection
+              onExploreMarkets={() => setCurrentView('map')}
+              onExploreMap={() => setCurrentView('map')}
+            />
 
-        {/* 7. Final CTA Banner */}
-        <CTASection
-          onGetStarted={() => setAuthModalState({ isOpen: true, mode: 'register' })}
-          onExploreMarkets={() => handleScrollToSection('markets-preview')}
-        />
+            {/* 7. Final CTA Banner */}
+            <CTASection
+              onGetStarted={() => setAuthModalState({ isOpen: true, mode: 'register' })}
+              onExploreMarkets={() => setCurrentView('map')}
+            />
+          </>
+        )}
       </main>
 
       {/* 8. Footer */}
       <Footer
         onOpenAuth={(mode) => setAuthModalState({ isOpen: true, mode })}
-        onNavigateToSection={handleScrollToSection}
-        onExploreMarkets={() => handleScrollToSection('markets-preview')}
+        onNavigateToSection={(sec) => {
+          if (currentView === 'map') {
+            setCurrentView('landing');
+            setTimeout(() => handleScrollToSection(sec), 50);
+          } else {
+            handleScrollToSection(sec);
+          }
+        }}
+        onExploreMarkets={() => setCurrentView('map')}
       />
 
       {/* Modals & Overlays */}

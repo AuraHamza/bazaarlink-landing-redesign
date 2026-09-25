@@ -5,18 +5,44 @@ interface NavbarProps {
   onOpenAuth: (mode: 'login' | 'register') => void;
   onNavigateToSection: (sectionId: string) => void;
   onExploreMarkets: () => void;
+  currentView?: 'landing' | 'map';
+  onNavigateView?: (view: 'landing' | 'map') => void;
 }
 
 export const Navbar: React.FC<NavbarProps> = ({
   onOpenAuth,
   onNavigateToSection,
   onExploreMarkets,
+  currentView = 'landing',
+  onNavigateView,
 }) => {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
 
   const handleNavClick = (sectionId: string) => {
     setMobileMenuOpen(false);
-    onNavigateToSection(sectionId);
+    if (currentView === 'map') {
+      onNavigateView?.('landing');
+      setTimeout(() => {
+        onNavigateToSection(sectionId);
+      }, 50);
+    } else {
+      onNavigateToSection(sectionId);
+    }
+  };
+
+  const handleGoToMap = () => {
+    setMobileMenuOpen(false);
+    if (onNavigateView) {
+      onNavigateView('map');
+    } else {
+      onNavigateToSection('map-section');
+    }
+  };
+
+  const handleGoToHome = () => {
+    setMobileMenuOpen(false);
+    onNavigateView?.('landing');
+    onNavigateToSection('hero');
   };
 
   return (
@@ -25,7 +51,7 @@ export const Navbar: React.FC<NavbarProps> = ({
         <div className="flex items-center justify-between h-18">
           {/* Left: BazaarLink Logo & Brand */}
           <button
-            onClick={() => handleNavClick('hero')}
+            onClick={handleGoToHome}
             className="flex items-center gap-2.5 group text-left cursor-pointer focus:outline-none focus-visible:ring-2 focus-visible:ring-[#3FA0C8] rounded-lg p-1"
           >
             <div className="w-9 h-9 rounded-xl bg-gradient-to-br from-[#1E4E8C] to-[#3FA0C8] flex items-center justify-center text-white shadow-sm shadow-[#1E4E8C]/20 group-hover:scale-105 transition-transform duration-200">
@@ -45,18 +71,33 @@ export const Navbar: React.FC<NavbarProps> = ({
           <nav className="hidden md:flex items-center gap-8">
             <button
               onClick={() => {
-                onExploreMarkets();
-                handleNavClick('markets-preview');
+                if (currentView === 'landing') {
+                  onExploreMarkets();
+                  handleNavClick('markets-preview');
+                } else {
+                  handleGoToMap();
+                }
               }}
-              className="text-sm font-medium text-slate-600 hover:text-[#1E4E8C] transition-colors cursor-pointer py-1"
+              className={`text-sm font-medium transition-colors cursor-pointer py-1 ${
+                currentView === 'map'
+                  ? 'text-[#1E4E8C] font-semibold'
+                  : 'text-slate-600 hover:text-[#1E4E8C]'
+              }`}
             >
               Markets
             </button>
             <button
-              onClick={() => handleNavClick('map-section')}
-              className="text-sm font-medium text-slate-600 hover:text-[#1E4E8C] transition-colors cursor-pointer py-1"
+              onClick={handleGoToMap}
+              className={`text-sm font-medium transition-colors cursor-pointer py-1 flex items-center gap-1.5 ${
+                currentView === 'map'
+                  ? 'text-[#1E4E8C] font-bold border-b-2 border-[#1E4E8C]'
+                  : 'text-slate-600 hover:text-[#1E4E8C]'
+              }`}
             >
-              Map
+              <span>Map</span>
+              {currentView === 'map' && (
+                <span className="w-1.5 h-1.5 rounded-full bg-[#2EC4B6]" />
+              )}
             </button>
             <button
               onClick={() => handleNavClick('how-it-works')}
@@ -102,18 +143,22 @@ export const Navbar: React.FC<NavbarProps> = ({
           <div className="flex flex-col space-y-2">
             <button
               onClick={() => {
-                onExploreMarkets();
-                handleNavClick('markets-preview');
+                if (currentView === 'landing') {
+                  onExploreMarkets();
+                  handleNavClick('markets-preview');
+                } else {
+                  handleGoToMap();
+                }
               }}
               className="text-left px-3 py-2 text-base font-medium text-slate-700 hover:bg-slate-50 rounded-lg"
             >
               Markets
             </button>
             <button
-              onClick={() => handleNavClick('map-section')}
-              className="text-left px-3 py-2 text-base font-medium text-slate-700 hover:bg-slate-50 rounded-lg"
+              onClick={handleGoToMap}
+              className="text-left px-3 py-2 text-base font-medium text-[#1E4E8C] font-semibold hover:bg-slate-50 rounded-lg"
             >
-              Map
+              Map (Karachi Live)
             </button>
             <button
               onClick={() => handleNavClick('how-it-works')}
