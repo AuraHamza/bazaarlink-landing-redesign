@@ -33,11 +33,15 @@ export interface Market {
   // Normalized percentage position (0-100%) for stylized vector map of Karachi
   mapX: number;
   mapY: number;
-  status: 'active' | 'inactive';
+  status: 'active' | 'inactive' | 'pending';
   shopsCount: number;
   productsCount: number;
   tagline: string;
   timing: string;
   specialties: string[];
   sampleShops: Shop[];
+  hubId?: string;
+  adminId?: string | null;
+  adminName?: string | null;
+  createdAt?: string;
 }

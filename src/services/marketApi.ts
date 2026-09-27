@@ -1,5 +1,6 @@
 import { Market } from '../types/market';
 import { INITIAL_MARKETS } from './marketData';
+import { platformAdminApi } from './platformAdminApi';
 
 // Conceptual in-memory store simulating Express + PostgreSQL backend
 let databaseMarkets: Market[] = [...INITIAL_MARKETS];
@@ -9,6 +10,14 @@ const listeners = new Set<Listener>();
 function notify() {
   listeners.forEach((cb) => cb());
 }
+
+// Keep marketApi in sync with platformAdminApi
+platformAdminApi.subscribe(() => {
+  platformAdminApi.getMarkets().then((adminMarkets) => {
+    databaseMarkets = adminMarkets;
+    notify();
+  });
+});
 
 export const marketApi = {
   // Simulates GET /markets (defaults to active markets for customer frontend)

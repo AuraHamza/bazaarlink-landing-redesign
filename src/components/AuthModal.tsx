@@ -5,9 +5,10 @@ interface AuthModalProps {
   isOpen: boolean;
   initialMode: 'login' | 'register';
   onClose: () => void;
+  onAdminLogin?: () => void;
 }
 
-export const AuthModal: React.FC<AuthModalProps> = ({ isOpen, initialMode, onClose }) => {
+export const AuthModal: React.FC<AuthModalProps> = ({ isOpen, initialMode, onClose, onAdminLogin }) => {
   const [mode, setMode] = useState<'login' | 'register'>(initialMode);
   const [role, setRole] = useState<'shopper' | 'merchant'>('shopper');
   const [email, setEmail] = useState('');
@@ -151,6 +152,22 @@ export const AuthModal: React.FC<AuthModalProps> = ({ isOpen, initialMode, onClo
                 <span>{mode === 'login' ? 'Sign In to BazaarLink' : 'Create Free Account'}</span>
                 <ArrowRight className="w-4 h-4" />
               </button>
+
+              {mode === 'login' && onAdminLogin && (
+                <div className="pt-2">
+                  <button
+                    type="button"
+                    onClick={() => {
+                      onClose();
+                      onAdminLogin();
+                    }}
+                    className="w-full py-2.5 px-3 bg-blue-50 hover:bg-blue-100 text-[#1E4E8C] border border-blue-200/80 rounded-xl text-xs font-bold transition-colors cursor-pointer flex items-center justify-center gap-2"
+                  >
+                    <ShieldCheck className="w-4 h-4 text-[#3FA0C8]" />
+                    <span>Sign In as Platform Super Admin</span>
+                  </button>
+                </div>
+              )}
 
               <div className="text-center pt-2">
                 {mode === 'login' ? (

@@ -18,10 +18,16 @@ import { DbSimulatorModal } from './components/DbSimulatorModal';
 import { AuthModal } from './components/AuthModal';
 import { LoadingScreen } from './components/LoadingScreen';
 import { MapPage } from './components/MapPage';
+import { PlatformAdminDashboard } from './components/admin/PlatformAdminDashboard';
 
 export default function App() {
   const [isLoading, setIsLoading] = useState(true);
-  const [currentView, setCurrentView] = useState<'landing' | 'map'>('landing');
+  const [currentView, setCurrentView] = useState<'landing' | 'map' | 'admin'>(() => {
+    if (typeof window !== 'undefined' && window.location.hash === '#admin') {
+      return 'admin';
+    }
+    return 'landing';
+  });
   const [markets, setMarkets] = useState<Market[]>([]);
   const [selectedMarketId, setSelectedMarketId] = useState<number | null>(null);
   const [inspectingMarket, setInspectingMarket] = useState<Market | null>(null);
@@ -79,90 +85,105 @@ export default function App() {
         <LoadingScreen onComplete={() => setIsLoading(false)} />
       )}
 
-      {/* 1. Sticky Navbar */}
-      <Navbar
-        currentView={currentView}
-        onNavigateView={(v) => setCurrentView(v)}
-        onOpenAuth={(mode) => setAuthModalState({ isOpen: true, mode })}
-        onNavigateToSection={handleScrollToSection}
-        onExploreMarkets={() => {
-          if (currentView === 'map') {
-            // Already on map/markets page
-          } else {
-            handleScrollToSection('markets-preview');
-          }
-        }}
-      />
-
-      <main className="flex-1">
-        {currentView === 'map' ? (
-          /* Redesigned Dedicated BazaarLink Map / Markets Page */
-          <MapPage
-            markets={markets}
-            selectedMarketId={selectedMarketId}
-            onSelectMarket={handleSelectMarket}
-            onOpenShopModal={(market) => setInspectingMarket(market)}
-            onOpenDbSimulator={() => setIsDbSimulatorOpen(true)}
-            onNavigateHome={() => setCurrentView('landing')}
-            error={apiError}
-            onRetry={refreshMarkets}
+      {currentView === 'admin' ? (
+        /* Dedicated BazaarLink Platform Admin Dashboard */
+        <PlatformAdminDashboard
+          onNavigateToPublic={() => setCurrentView('landing')}
+          onLogout={() => setCurrentView('landing')}
+          onOpenShopModal={handleOpenShopModal}
+          onViewOnMap={(market) => {
+            setSelectedMarketId(market.id);
+            setCurrentView('map');
+          }}
+        />
+      ) : (
+        <>
+          {/* 1. Sticky Navbar */}
+          <Navbar
+            currentView={currentView}
+            onNavigateView={(v) => setCurrentView(v)}
+            onOpenAuth={(mode) => setAuthModalState({ isOpen: true, mode })}
+            onNavigateToSection={handleScrollToSection}
+            onExploreMarkets={() => {
+              if (currentView === 'map') {
+                // Already on map/markets page
+              } else {
+                handleScrollToSection('markets-preview');
+              }
+            }}
           />
-        ) : (
-          /* Landing Page Experience */
-          <>
-            {/* 2 & 3 & 4. Hero Section with Interactive Map Preview and Dynamic Stats */}
-            <HeroSection
-              markets={markets}
-              selectedMarketId={selectedMarketId}
-              onSelectMarket={handleOpenShopModal}
-              onExploreMarketsClick={() => setCurrentView('map')}
-              onExploreMapClick={() => setCurrentView('map')}
-              onOpenDbSimulator={() => setIsDbSimulatorOpen(true)}
-            />
 
-            {/* Dynamic Markets Directory */}
-            <MarketsDirectorySection
-              markets={markets}
-              onSelectMarket={handleOpenShopModal}
-              onOpenDbSimulator={() => setIsDbSimulatorOpen(true)}
-            />
+          <main className="flex-1">
+            {currentView === 'map' ? (
+              /* Redesigned Dedicated BazaarLink Map / Markets Page */
+              <MapPage
+                markets={markets}
+                selectedMarketId={selectedMarketId}
+                onSelectMarket={handleSelectMarket}
+                onOpenShopModal={(market) => setInspectingMarket(market)}
+                onOpenDbSimulator={() => setIsDbSimulatorOpen(true)}
+                onNavigateHome={() => setCurrentView('landing')}
+                error={apiError}
+                onRetry={refreshMarkets}
+              />
+            ) : (
+              /* Landing Page Experience */
+              <>
+                {/* 2 & 3 & 4. Hero Section with Interactive Map Preview and Dynamic Stats */}
+                <HeroSection
+                  markets={markets}
+                  selectedMarketId={selectedMarketId}
+                  onSelectMarket={handleOpenShopModal}
+                  onExploreMarketsClick={() => setCurrentView('map')}
+                  onExploreMapClick={() => setCurrentView('map')}
+                  onOpenDbSimulator={() => setIsDbSimulatorOpen(true)}
+                />
 
-            {/* 5. "How BazaarLink Works" (Market -> Shop -> Product -> Order) */}
-            <HowItWorks
-              onStepClick={(step) => {
-                if (step === 1) setCurrentView('map');
-                if (step === 2 && markets.length > 0) handleOpenShopModal(markets[0]);
-              }}
-            />
+                {/* Dynamic Markets Directory */}
+                <MarketsDirectorySection
+                  markets={markets}
+                  onSelectMarket={handleOpenShopModal}
+                  onOpenDbSimulator={() => setIsDbSimulatorOpen(true)}
+                />
 
-            {/* 6. Features Section: "Everything you need to shop locally" */}
-            <FeaturesSection
-              onExploreMarkets={() => setCurrentView('map')}
-              onExploreMap={() => setCurrentView('map')}
-            />
+                {/* 5. "How BazaarLink Works" (Market -> Shop -> Product -> Order) */}
+                <HowItWorks
+                  onStepClick={(step) => {
+                    if (step === 1) setCurrentView('map');
+                    if (step === 2 && markets.length > 0) handleOpenShopModal(markets[0]);
+                  }}
+                />
 
-            {/* 7. Final CTA Banner */}
-            <CTASection
-              onGetStarted={() => setAuthModalState({ isOpen: true, mode: 'register' })}
-              onExploreMarkets={() => setCurrentView('map')}
-            />
-          </>
-        )}
-      </main>
+                {/* 6. Features Section: "Everything you need to shop locally" */}
+                <FeaturesSection
+                  onExploreMarkets={() => setCurrentView('map')}
+                  onExploreMap={() => setCurrentView('map')}
+                />
 
-      {/* 8. Footer */}
-      <Footer
-        onOpenAuth={(mode) => setAuthModalState({ isOpen: true, mode })}
-        onNavigateToSection={(sec) => {
-          if (currentView === 'map') {
-            setCurrentView('landing');
-            setTimeout(() => handleScrollToSection(sec), 50);
-          } else {
-            handleScrollToSection(sec);
-          }
-        }}
-        onExploreMarkets={() => setCurrentView('map')}
-      />
+                {/* 7. Final CTA Banner */}
+                <CTASection
+                  onGetStarted={() => setAuthModalState({ isOpen: true, mode: 'register' })}
+                  onExploreMarkets={() => setCurrentView('map')}
+                />
+              </>
+            )}
+          </main>
+
+          {/* 8. Footer */}
+          <Footer
+            onOpenAuth={(mode) => setAuthModalState({ isOpen: true, mode })}
+            onNavigateToSection={(sec) => {
+              if (currentView === 'map') {
+                setCurrentView('landing');
+                setTimeout(() => handleScrollToSection(sec), 50);
+              } else {
+                handleScrollToSection(sec);
+              }
+            }}
+            onExploreMarkets={() => setCurrentView('map')}
+          />
+        </>
+      )}
 
       {/* Modals & Overlays */}
       <MarketDetailModal
@@ -180,6 +201,7 @@ export default function App() {
         isOpen={authModalState.isOpen}
         initialMode={authModalState.mode}
         onClose={() => setAuthModalState({ isOpen: false, mode: 'login' })}
+        onAdminLogin={() => setCurrentView('admin')}
       />
     </div>
   );
