@@ -11,6 +11,8 @@ import { RegisterMarketModal } from './modals/RegisterMarketModal';
 import { RegisterAdminModal } from './modals/RegisterAdminModal';
 import { EditMarketModal } from './modals/EditMarketModal';
 import { ConfirmActionModal } from './modals/ConfirmActionModal';
+import { ViewPersonnelModal } from './modals/ViewPersonnelModal';
+import { EditPersonnelModal } from './modals/EditPersonnelModal';
 
 import { platformAdminApi } from '../../services/platformAdminApi';
 import { RegionalHub, PlatformPersonnel, SystemHealthData, PlatformMetrics } from '../../types/platformAdmin';
@@ -61,6 +63,11 @@ export const PlatformAdminDashboard: React.FC<PlatformAdminDashboardProps> = ({
   const [isRegisterAdminOpen, setIsRegisterAdminOpen] = useState(false);
   const [editingMarket, setEditingMarket] = useState<Market | null>(null);
   const [deletingMarket, setDeletingMarket] = useState<Market | null>(null);
+
+  // Market Admin Personnel Modals state
+  const [viewingPersonnel, setViewingPersonnel] = useState<PlatformPersonnel | null>(null);
+  const [editingPersonnel, setEditingPersonnel] = useState<PlatformPersonnel | null>(null);
+  const [deletingPersonnel, setDeletingPersonnel] = useState<PlatformPersonnel | null>(null);
 
   // Single Platform Admin
   const currentAdmin: PlatformPersonnel = personnel.find((p) => p.role === 'PLATFORM_ADMIN') || {
@@ -133,6 +140,27 @@ export const PlatformAdminDashboard: React.FC<PlatformAdminDashboardProps> = ({
     }
   };
 
+  const handleTogglePersonnelStatus = async (person: PlatformPersonnel) => {
+    if (person.role === 'PLATFORM_ADMIN') return;
+    try {
+      await platformAdminApi.toggleMarketAdminStatus(person.id);
+      refreshAllData();
+    } catch (e) {
+      console.error(e);
+    }
+  };
+
+  const handleConfirmDeletePersonnel = async () => {
+    if (!deletingPersonnel || deletingPersonnel.role === 'PLATFORM_ADMIN') return;
+    try {
+      await platformAdminApi.deleteMarketAdmin(deletingPersonnel.id);
+      setDeletingPersonnel(null);
+      refreshAllData();
+    } catch (e) {
+      console.error(e);
+    }
+  };
+
   const activeMarketsCount = markets.filter((m) => m.status === 'active').length;
   const verifiedMarketAdminsCount = personnel.filter(
     (p) => p.role === 'MARKET_ADMIN' && p.status === 'ACTIVE'
@@ -184,6 +212,10 @@ export const PlatformAdminDashboard: React.FC<PlatformAdminDashboardProps> = ({
           {/* 6. Personnel Directory */}
           <PersonnelDirectory
             personnel={personnel}
+            onOpenViewPersonnel={(p) => setViewingPersonnel(p)}
+            onOpenEditPersonnel={(p) => setEditingPersonnel(p)}
+            onOpenDeletePersonnel={(p) => setDeletingPersonnel(p)}
+            onTogglePersonnelStatus={handleTogglePersonnelStatus}
           />
         </div>
       </main>
@@ -225,6 +257,31 @@ export const PlatformAdminDashboard: React.FC<PlatformAdminDashboardProps> = ({
         confirmVariant="danger"
         onConfirm={handleConfirmDeleteMarket}
         onClose={() => setDeletingMarket(null)}
+      />
+
+      {/* Modals for Market Admin Personnel Management */}
+      <ViewPersonnelModal
+        person={viewingPersonnel}
+        isOpen={viewingPersonnel !== null}
+        onClose={() => setViewingPersonnel(null)}
+      />
+
+      <EditPersonnelModal
+        person={editingPersonnel}
+        isOpen={editingPersonnel !== null}
+        onClose={() => setEditingPersonnel(null)}
+        onSuccess={refreshAllData}
+        markets={markets}
+      />
+
+      <ConfirmActionModal
+        isOpen={deletingPersonnel !== null}
+        title="Delete Market Administrator"
+        message={`Are you sure you want to delete ${deletingPersonnel?.name}? This will revoke their administrator permissions and remove their assignment.`}
+        confirmLabel="Delete Administrator"
+        confirmVariant="danger"
+        onConfirm={handleConfirmDeletePersonnel}
+        onClose={() => setDeletingPersonnel(null)}
       />
     </div>
   );

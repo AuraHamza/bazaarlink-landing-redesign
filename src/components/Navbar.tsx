@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { MapPin, Menu, X, ChevronRight, ShieldCheck } from 'lucide-react';
+import { MapPin, Menu, X, ChevronRight } from 'lucide-react';
 
 interface NavbarProps {
   onOpenAuth: (mode: 'login' | 'register') => void;
@@ -39,6 +39,20 @@ export const Navbar: React.FC<NavbarProps> = ({
     }
   };
 
+  const handleExplore = () => {
+    setMobileMenuOpen(false);
+    if (currentView === 'map') {
+      onNavigateView?.('landing');
+      setTimeout(() => {
+        onExploreMarkets();
+        handleNavClick('markets-preview');
+      }, 50);
+    } else {
+      onExploreMarkets();
+      handleNavClick('markets-preview');
+    }
+  };
+
   const handleGoToHome = () => {
     setMobileMenuOpen(false);
     onNavigateView?.('landing');
@@ -52,14 +66,14 @@ export const Navbar: React.FC<NavbarProps> = ({
           {/* Left: BazaarLink Logo & Brand */}
           <button
             onClick={handleGoToHome}
-            className="flex items-center gap-2.5 group text-left cursor-pointer focus:outline-none focus-visible:ring-2 focus-visible:ring-[#3FA0C8] rounded-lg p-1"
+            className="flex items-center gap-2.5 group text-left cursor-pointer focus:outline-none focus-visible:ring-2 focus-visible:ring-[#0D9488] rounded-lg p-1"
           >
-            <div className="w-9 h-9 rounded-xl bg-gradient-to-br from-[#1E4E8C] to-[#3FA0C8] flex items-center justify-center text-white shadow-sm shadow-[#1E4E8C]/20 group-hover:scale-105 transition-transform duration-200">
+            <div className="w-9 h-9 rounded-xl bg-gradient-to-br from-[#1E4E8C] to-[#0D9488] flex items-center justify-center text-white shadow-sm shadow-[#1E4E8C]/20 group-hover:scale-105 transition-transform duration-200">
               <MapPin className="w-5 h-5 text-white" strokeWidth={2.3} />
             </div>
             <div className="flex flex-col">
               <span className="text-xl font-bold tracking-tight text-[#1E4E8C] font-['Lexend'] leading-none">
-                Bazaar<span className="text-[#3FA0C8]">Link</span>
+                Bazaar<span className="text-[#0D9488]">Link</span>
               </span>
               <span className="text-[10px] font-medium text-slate-500 tracking-wider uppercase mt-0.5">
                 Karachi Markets
@@ -67,25 +81,8 @@ export const Navbar: React.FC<NavbarProps> = ({
             </div>
           </button>
 
-          {/* Center Navigation Links */}
+          {/* Center Navigation Links: Map and Explore */}
           <nav className="hidden md:flex items-center gap-8">
-            <button
-              onClick={() => {
-                if (currentView === 'landing') {
-                  onExploreMarkets();
-                  handleNavClick('markets-preview');
-                } else {
-                  handleGoToMap();
-                }
-              }}
-              className={`text-sm font-medium transition-colors cursor-pointer py-1 ${
-                currentView === 'map'
-                  ? 'text-[#1E4E8C] font-semibold'
-                  : 'text-slate-600 hover:text-[#1E4E8C]'
-              }`}
-            >
-              Markets
-            </button>
             <button
               onClick={handleGoToMap}
               className={`text-sm font-medium transition-colors cursor-pointer py-1 flex items-center gap-1.5 ${
@@ -96,27 +93,23 @@ export const Navbar: React.FC<NavbarProps> = ({
             >
               <span>Map</span>
               {currentView === 'map' && (
-                <span className="w-1.5 h-1.5 rounded-full bg-[#2EC4B6]" />
+                <span className="w-1.5 h-1.5 rounded-full bg-[#0D9488]" />
               )}
             </button>
             <button
-              onClick={() => handleNavClick('how-it-works')}
-              className="text-sm font-medium text-slate-600 hover:text-[#1E4E8C] transition-colors cursor-pointer py-1"
+              onClick={handleExplore}
+              className={`text-sm font-medium transition-colors cursor-pointer py-1 ${
+                currentView === 'landing'
+                  ? 'text-slate-700 hover:text-[#1E4E8C]'
+                  : 'text-slate-600 hover:text-[#1E4E8C]'
+              }`}
             >
-              How It Works
+              Explore
             </button>
           </nav>
 
-          {/* Right: Auth Actions + Admin Quick Access */}
+          {/* Right: Appropriate Public Actions */}
           <div className="hidden md:flex items-center gap-3">
-            <button
-              onClick={() => onNavigateView?.('admin')}
-              className="px-3 py-1.5 text-xs font-semibold text-slate-600 hover:text-[#1E4E8C] transition-colors cursor-pointer rounded-lg hover:bg-blue-50/70 border border-slate-200/80 flex items-center gap-1.5"
-              title="Switch to BazaarLink Platform Admin Command Center"
-            >
-              <ShieldCheck className="w-3.5 h-3.5 text-[#3FA0C8]" />
-              <span>Admin</span>
-            </button>
             <button
               onClick={() => onOpenAuth('login')}
               className="px-4 py-2 text-sm font-medium text-slate-700 hover:text-[#1E4E8C] transition-colors cursor-pointer rounded-lg hover:bg-slate-100/70"
@@ -125,7 +118,7 @@ export const Navbar: React.FC<NavbarProps> = ({
             </button>
             <button
               onClick={() => onOpenAuth('register')}
-              className="px-4 py-2 text-sm font-semibold text-white bg-gradient-to-r from-[#1E4E8C] to-[#3FA0C8] hover:from-[#173e70] hover:to-[#358aa8] rounded-xl shadow-sm shadow-[#1E4E8C]/25 transition-all duration-200 cursor-pointer flex items-center gap-1.5 active:scale-[0.98]"
+              className="px-4 py-2 text-sm font-semibold text-white bg-gradient-to-r from-[#1E4E8C] to-[#0D9488] hover:from-[#173e70] hover:to-[#0b7a70] rounded-xl shadow-sm shadow-[#1E4E8C]/25 transition-all duration-200 cursor-pointer flex items-center gap-1.5 active:scale-[0.98]"
             >
               Get Started
               <ChevronRight className="w-4 h-4" />
@@ -150,42 +143,19 @@ export const Navbar: React.FC<NavbarProps> = ({
         <div className="md:hidden border-b border-slate-200 bg-white/95 backdrop-blur-md px-4 pt-3 pb-5 space-y-3">
           <div className="flex flex-col space-y-2">
             <button
-              onClick={() => {
-                if (currentView === 'landing') {
-                  onExploreMarkets();
-                  handleNavClick('markets-preview');
-                } else {
-                  handleGoToMap();
-                }
-              }}
-              className="text-left px-3 py-2 text-base font-medium text-slate-700 hover:bg-slate-50 rounded-lg"
-            >
-              Markets
-            </button>
-            <button
               onClick={handleGoToMap}
               className="text-left px-3 py-2 text-base font-medium text-[#1E4E8C] font-semibold hover:bg-slate-50 rounded-lg"
             >
-              Map (Karachi Live)
+              Map
             </button>
             <button
-              onClick={() => handleNavClick('how-it-works')}
+              onClick={handleExplore}
               className="text-left px-3 py-2 text-base font-medium text-slate-700 hover:bg-slate-50 rounded-lg"
             >
-              How It Works
+              Explore
             </button>
           </div>
           <div className="pt-3 border-t border-slate-100 flex flex-col gap-2">
-            <button
-              onClick={() => {
-                setMobileMenuOpen(false);
-                onNavigateView?.('admin');
-              }}
-              className="w-full py-2.5 px-3 text-center text-xs font-bold text-[#1E4E8C] bg-blue-50 border border-blue-200/80 rounded-xl flex items-center justify-center gap-1.5"
-            >
-              <ShieldCheck className="w-4 h-4 text-[#3FA0C8]" />
-              <span>Platform Admin Command Center</span>
-            </button>
             <button
               onClick={() => {
                 setMobileMenuOpen(false);
@@ -200,7 +170,7 @@ export const Navbar: React.FC<NavbarProps> = ({
                 setMobileMenuOpen(false);
                 onOpenAuth('register');
               }}
-              className="w-full py-2.5 text-center text-sm font-semibold text-white bg-gradient-to-r from-[#1E4E8C] to-[#3FA0C8] rounded-xl shadow-sm"
+              className="w-full py-2.5 text-center text-sm font-semibold text-white bg-gradient-to-r from-[#1E4E8C] to-[#0D9488] rounded-xl shadow-sm"
             >
               Get Started
             </button>

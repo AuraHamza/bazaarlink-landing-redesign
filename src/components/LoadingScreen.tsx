@@ -80,7 +80,7 @@ export const LoadingScreen: React.FC<LoadingScreenProps> = ({
       <div className="absolute inset-0 overflow-hidden pointer-events-none">
         {/* Soft primary blue glow */}
         <div
-          className={`absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[340px] sm:w-[480px] h-[340px] sm:h-[480px] rounded-full bg-gradient-to-tr from-[#1E4E8C]/12 via-[#3FA0C8]/15 to-[#2EC4B6]/10 blur-3xl transition-opacity duration-1000 ${
+          className={`absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[340px] sm:w-[480px] h-[340px] sm:h-[480px] rounded-full bg-gradient-to-tr from-[#1E4E8C]/12 via-[#0D9488]/15 to-[#14B8A6]/10 blur-3xl transition-opacity duration-1000 ${
             stage >= 1 ? 'opacity-100 scale-100' : 'opacity-40 scale-75'
           } ${reducedMotion ? '' : 'animate-ambient-glow'}`}
         />
@@ -95,7 +95,7 @@ export const LoadingScreen: React.FC<LoadingScreenProps> = ({
           {/* Expanding Radar Wave 1 */}
           {stage >= 2 && !reducedMotion && (
             <span
-              className="absolute w-16 h-16 rounded-3xl bg-[#3FA0C8]/25 animate-radar-ripple pointer-events-none"
+              className="absolute w-16 h-16 rounded-3xl bg-[#0D9488]/20 animate-radar-ripple pointer-events-none"
               style={{ animationDuration: '2s' }}
             />
           )}
@@ -103,14 +103,14 @@ export const LoadingScreen: React.FC<LoadingScreenProps> = ({
           {/* Expanding Radar Wave 2 (delayed offset) */}
           {stage >= 2 && !reducedMotion && (
             <span
-              className="absolute w-16 h-16 rounded-3xl bg-[#2EC4B6]/20 animate-radar-ripple pointer-events-none"
+              className="absolute w-16 h-16 rounded-3xl bg-[#14B8A6]/20 animate-radar-ripple pointer-events-none"
               style={{ animationDelay: '0.6s', animationDuration: '2.2s' }}
             />
           )}
 
           {/* The Location-Pin Icon Badge */}
           <div
-            className={`relative w-16 h-16 sm:w-18 sm:h-18 rounded-2xl sm:rounded-3xl bg-gradient-to-br from-[#1E4E8C] to-[#3FA0C8] flex items-center justify-center text-white shadow-xl shadow-[#1E4E8C]/25 transition-all duration-500 ease-out ${
+            className={`relative w-16 h-16 sm:w-18 sm:h-18 rounded-2xl sm:rounded-3xl bg-gradient-to-br from-[#1E4E8C] to-[#0D9488] flex items-center justify-center text-white shadow-xl shadow-[#1E4E8C]/25 transition-all duration-500 ease-out ${
               stage >= 1
                 ? 'scale-100 blur-none opacity-100'
                 : 'scale-75 blur-sm opacity-0'
@@ -138,7 +138,7 @@ export const LoadingScreen: React.FC<LoadingScreenProps> = ({
         >
           <div className="flex items-center justify-center">
             <span className="text-3xl sm:text-4xl font-extrabold tracking-tight text-[#1E4E8C] font-['Lexend'] leading-none">
-              Bazaar<span className="text-[#3FA0C8]">Link</span>
+              Bazaar<span className="text-[#0D9488]">Link</span>
             </span>
           </div>
           <span className="text-[11px] font-semibold text-slate-500 tracking-widest uppercase mt-1.5 font-['Inter']">
@@ -182,8 +182,8 @@ export const LoadingScreen: React.FC<LoadingScreenProps> = ({
             <defs>
               <linearGradient id="routeGradient" x1="0%" y1="0%" x2="100%" y2="0%">
                 <stop offset="0%" stopColor="#1E4E8C" />
-                <stop offset="50%" stopColor="#3FA0C8" />
-                <stop offset="100%" stopColor="#2EC4B6" />
+                <stop offset="50%" stopColor="#0D9488" />
+                <stop offset="100%" stopColor="#14B8A6" />
               </linearGradient>
             </defs>
 
@@ -202,7 +202,7 @@ export const LoadingScreen: React.FC<LoadingScreenProps> = ({
               cx="55"
               cy="12"
               r="2.5"
-              fill="#3FA0C8"
+              fill="#0D9488"
               stroke="#ffffff"
               strokeWidth="1"
               className={stage >= 4 && !reducedMotion ? 'animate-pulse' : ''}
@@ -212,7 +212,7 @@ export const LoadingScreen: React.FC<LoadingScreenProps> = ({
               cx="105"
               cy="26"
               r="2.5"
-              fill="#3FA0C8"
+              fill="#0D9488"
               stroke="#ffffff"
               strokeWidth="1"
             />
@@ -221,7 +221,7 @@ export const LoadingScreen: React.FC<LoadingScreenProps> = ({
               cx="145"
               cy="14"
               r="3.5"
-              fill="#2EC4B6"
+              fill="#14B8A6"
               stroke="#ffffff"
               strokeWidth="1.5"
               className={stage >= 4 && !reducedMotion ? 'animate-pulse' : ''}
@@ -245,14 +245,14 @@ export const LoadingScreen: React.FC<LoadingScreenProps> = ({
               }}
             />
             <span
-              className="w-1.5 h-1.5 rounded-full bg-[#3FA0C8]"
+              className="w-1.5 h-1.5 rounded-full bg-[#0D9488]"
               style={{
                 animation: reducedMotion ? 'none' : 'dot-bounce 1.2s infinite ease-in-out',
                 animationDelay: '0.2s',
               }}
             />
             <span
-              className="w-1.5 h-1.5 rounded-full bg-[#2EC4B6]"
+              className="w-1.5 h-1.5 rounded-full bg-[#14B8A6]"
               style={{
                 animation: reducedMotion ? 'none' : 'dot-bounce 1.2s infinite ease-in-out',
                 animationDelay: '0.4s',

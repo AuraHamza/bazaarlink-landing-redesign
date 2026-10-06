@@ -27,7 +27,7 @@ export interface PlatformPersonnel {
   role: UserRole;
   assignedMarketId: number | null;
   assignedMarketName: string | null;
-  status: 'ACTIVE' | 'PENDING' | 'SUSPENDED';
+  status: 'ACTIVE' | 'PENDING' | 'SUSPENDED' | 'INACTIVE';
   joinedDate: string;
   lastActive: string;
 }

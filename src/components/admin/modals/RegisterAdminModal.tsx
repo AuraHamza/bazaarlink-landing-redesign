@@ -71,7 +71,7 @@ export const RegisterAdminModal: React.FC<RegisterAdminModalProps> = ({
         onClick={(e) => e.stopPropagation()}
       >
         {/* Modal Header */}
-        <div className="bg-gradient-to-r from-[#1E4E8C] to-[#3FA0C8] p-6 text-white relative">
+        <div className="bg-gradient-to-r from-[#0A1128] via-[#1E4E8C] to-[#0D9488] p-6 text-white relative">
           <button
             onClick={onClose}
             className="absolute top-5 right-5 p-1.5 rounded-full bg-white/10 hover:bg-white/20 text-white transition-colors cursor-pointer"
@@ -83,7 +83,7 @@ export const RegisterAdminModal: React.FC<RegisterAdminModalProps> = ({
             <div className="w-8 h-8 rounded-xl bg-white/15 backdrop-blur-sm flex items-center justify-center">
               <ShieldCheck className="w-4 h-4 text-white" />
             </div>
-            <span className="text-xs font-bold uppercase tracking-wider text-sky-200">
+            <span className="text-xs font-bold uppercase tracking-wider text-teal-300">
               Command Center
             </span>
           </div>
@@ -91,7 +91,7 @@ export const RegisterAdminModal: React.FC<RegisterAdminModalProps> = ({
           <h3 className="text-xl font-extrabold font-['Lexend'] tracking-tight">
             Admin Commissioning
           </h3>
-          <p className="text-xs text-sky-100 mt-1">
+          <p className="text-xs text-teal-100 mt-1">
             Directly register and provision a Market Administrator account.
           </p>
         </div>
@@ -122,7 +122,7 @@ export const RegisterAdminModal: React.FC<RegisterAdminModalProps> = ({
               placeholder="e.g. Asadullah Qureshi"
               value={fullName}
               onChange={(e) => setFullName(e.target.value)}
-              className="w-full px-3.5 py-2.5 text-xs sm:text-sm bg-slate-50 border border-slate-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-[#3FA0C8] focus:bg-white text-slate-800"
+              className="w-full px-3.5 py-2.5 text-xs sm:text-sm bg-slate-50 border border-slate-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-[#0D9488] focus:bg-white text-slate-800"
             />
           </div>
 
@@ -137,7 +137,7 @@ export const RegisterAdminModal: React.FC<RegisterAdminModalProps> = ({
               placeholder="e.g. asadullah@bazaarlink.pk"
               value={email}
               onChange={(e) => setEmail(e.target.value)}
-              className="w-full px-3.5 py-2.5 text-xs sm:text-sm bg-slate-50 border border-slate-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-[#3FA0C8] focus:bg-white text-slate-800"
+              className="w-full px-3.5 py-2.5 text-xs sm:text-sm bg-slate-50 border border-slate-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-[#0D9488] focus:bg-white text-slate-800"
             />
           </div>
 
@@ -153,7 +153,7 @@ export const RegisterAdminModal: React.FC<RegisterAdminModalProps> = ({
                 placeholder="Initial secure portal password"
                 value={securityKey}
                 onChange={(e) => setSecurityKey(e.target.value)}
-                className="w-full pl-3.5 pr-10 py-2.5 text-xs sm:text-sm bg-slate-50 border border-slate-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-[#3FA0C8] focus:bg-white font-mono text-slate-800"
+                className="w-full pl-3.5 pr-10 py-2.5 text-xs sm:text-sm bg-slate-50 border border-slate-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-[#0D9488] focus:bg-white font-mono text-slate-800"
               />
               <button
                 type="button"
@@ -180,7 +180,7 @@ export const RegisterAdminModal: React.FC<RegisterAdminModalProps> = ({
             <button
               type="submit"
               disabled={isSubmitting || successFeedback}
-              className="px-5 py-2.5 text-xs font-bold text-white bg-gradient-to-r from-[#1E4E8C] to-[#3FA0C8] hover:from-[#173e70] hover:to-[#358aa8] rounded-xl shadow-sm transition-all cursor-pointer flex items-center gap-1.5 active:scale-95 disabled:opacity-50"
+              className="px-5 py-2.5 text-xs font-bold text-white bg-[#0D9488] hover:bg-[#0F766E] rounded-xl shadow-sm transition-all cursor-pointer flex items-center gap-1.5 active:scale-95 disabled:opacity-50"
             >
               <Lock className="w-3.5 h-3.5" />
               <span>{isSubmitting ? 'Issuing...' : 'Issue Credentials'}</span>

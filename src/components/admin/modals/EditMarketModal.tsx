@@ -78,7 +78,7 @@ export const EditMarketModal: React.FC<EditMarketModalProps> = ({
         onClick={(e) => e.stopPropagation()}
       >
         {/* Header */}
-        <div className="bg-gradient-to-r from-[#1E4E8C] to-[#3FA0C8] p-6 text-white relative">
+        <div className="bg-gradient-to-r from-[#0A1128] via-[#1E4E8C] to-[#0D9488] p-6 text-white relative">
           <button
             onClick={onClose}
             className="absolute top-5 right-5 p-1.5 rounded-full bg-white/10 hover:bg-white/20 text-white transition-colors cursor-pointer"
@@ -86,15 +86,15 @@ export const EditMarketModal: React.FC<EditMarketModalProps> = ({
             <X className="w-5 h-5" />
           </button>
           <div className="flex items-center gap-2 mb-1">
-            <Store className="w-4 h-4 text-sky-200" />
-            <span className="text-xs font-bold uppercase tracking-wider text-sky-200">
+            <Store className="w-4 h-4 text-teal-300" />
+            <span className="text-xs font-bold uppercase tracking-wider text-teal-300 font-mono">
               Market Configuration
             </span>
           </div>
           <h3 className="text-xl font-extrabold font-['Lexend'] tracking-tight">
             Edit {market.name} Market
           </h3>
-          <p className="text-xs text-sky-100">
+          <p className="text-xs text-teal-100 font-mono">
             Market ID: #{market.id} · Regional Governance
           </p>
         </div>
@@ -115,7 +115,7 @@ export const EditMarketModal: React.FC<EditMarketModalProps> = ({
                 required
                 value={name}
                 onChange={(e) => setName(e.target.value)}
-                className="w-full px-3.5 py-2 text-xs sm:text-sm bg-slate-50 border border-slate-200 rounded-xl focus:ring-2 focus:ring-[#3FA0C8] focus:bg-white"
+                className="w-full px-3.5 py-2 text-xs sm:text-sm bg-slate-50 border border-slate-200 rounded-xl focus:ring-2 focus:ring-[#0D9488] focus:bg-white"
               />
             </div>
             <div>
@@ -125,7 +125,7 @@ export const EditMarketModal: React.FC<EditMarketModalProps> = ({
                 required
                 value={area}
                 onChange={(e) => setArea(e.target.value)}
-                className="w-full px-3.5 py-2 text-xs sm:text-sm bg-slate-50 border border-slate-200 rounded-xl focus:ring-2 focus:ring-[#3FA0C8] focus:bg-white"
+                className="w-full px-3.5 py-2 text-xs sm:text-sm bg-slate-50 border border-slate-200 rounded-xl focus:ring-2 focus:ring-[#0D9488] focus:bg-white"
               />
             </div>
           </div>
@@ -136,7 +136,7 @@ export const EditMarketModal: React.FC<EditMarketModalProps> = ({
               <select
                 value={district}
                 onChange={(e) => setDistrict(e.target.value)}
-                className="w-full px-3.5 py-2 text-xs sm:text-sm bg-slate-50 border border-slate-200 rounded-xl focus:ring-2 focus:ring-[#3FA0C8] focus:bg-white"
+                className="w-full px-3.5 py-2 text-xs sm:text-sm bg-slate-50 border border-slate-200 rounded-xl focus:ring-2 focus:ring-[#0D9488] focus:bg-white"
               >
                 <option value="South Karachi">South Karachi</option>
                 <option value="East Karachi">East Karachi</option>
@@ -148,7 +148,7 @@ export const EditMarketModal: React.FC<EditMarketModalProps> = ({
               <select
                 value={status}
                 onChange={(e) => setStatus(e.target.value as 'active' | 'pending' | 'inactive')}
-                className="w-full px-3.5 py-2 text-xs sm:text-sm bg-slate-50 border border-slate-200 rounded-xl focus:ring-2 focus:ring-[#3FA0C8] focus:bg-white"
+                className="w-full px-3.5 py-2 text-xs sm:text-sm bg-slate-50 border border-slate-200 rounded-xl focus:ring-2 focus:ring-[#0D9488] focus:bg-white"
               >
                 <option value="active">ACTIVE (Visible on Map & Feed)</option>
                 <option value="pending">PENDING (Verification in Progress)</option>
@@ -163,7 +163,7 @@ export const EditMarketModal: React.FC<EditMarketModalProps> = ({
               type="text"
               value={timing}
               onChange={(e) => setTiming(e.target.value)}
-              className="w-full px-3.5 py-2 text-xs sm:text-sm bg-slate-50 border border-slate-200 rounded-xl focus:ring-2 focus:ring-[#3FA0C8] focus:bg-white"
+              className="w-full px-3.5 py-2 text-xs sm:text-sm bg-slate-50 border border-slate-200 rounded-xl focus:ring-2 focus:ring-[#0D9488] focus:bg-white"
             />
           </div>
 
@@ -173,7 +173,7 @@ export const EditMarketModal: React.FC<EditMarketModalProps> = ({
               type="text"
               value={tagline}
               onChange={(e) => setTagline(e.target.value)}
-              className="w-full px-3.5 py-2 text-xs sm:text-sm bg-slate-50 border border-slate-200 rounded-xl focus:ring-2 focus:ring-[#3FA0C8] focus:bg-white"
+              className="w-full px-3.5 py-2 text-xs sm:text-sm bg-slate-50 border border-slate-200 rounded-xl focus:ring-2 focus:ring-[#0D9488] focus:bg-white"
             />
           </div>
 
@@ -182,7 +182,7 @@ export const EditMarketModal: React.FC<EditMarketModalProps> = ({
             <select
               value={adminId}
               onChange={(e) => setAdminId(e.target.value)}
-              className="w-full px-3.5 py-2 text-xs sm:text-sm bg-slate-50 border border-slate-200 rounded-xl focus:ring-2 focus:ring-[#3FA0C8] focus:bg-white"
+              className="w-full px-3.5 py-2 text-xs sm:text-sm bg-slate-50 border border-slate-200 rounded-xl focus:ring-2 focus:ring-[#0D9488] focus:bg-white"
             >
               <option value="">VACANT (No Administrator Assigned)</option>
               {marketAdmins.map((a) => (
@@ -205,7 +205,7 @@ export const EditMarketModal: React.FC<EditMarketModalProps> = ({
             <button
               type="submit"
               disabled={isSubmitting}
-              className="px-5 py-2.5 text-xs font-bold text-white bg-gradient-to-r from-[#1E4E8C] to-[#3FA0C8] hover:from-[#173e70] hover:to-[#358aa8] rounded-xl shadow-sm transition-all cursor-pointer flex items-center gap-1.5 active:scale-95 disabled:opacity-50"
+              className="px-5 py-2.5 text-xs font-bold text-white bg-[#0D9488] hover:bg-[#0F766E] rounded-xl shadow-sm transition-all cursor-pointer flex items-center gap-1.5 active:scale-95 disabled:opacity-50"
             >
               <Check className="w-3.5 h-3.5" />
               <span>{isSubmitting ? 'Saving Changes...' : 'Save Configuration'}</span>

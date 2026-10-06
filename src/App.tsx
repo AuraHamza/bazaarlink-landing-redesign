@@ -19,12 +19,33 @@ import { AuthModal } from './components/AuthModal';
 import { LoadingScreen } from './components/LoadingScreen';
 import { MapPage } from './components/MapPage';
 import { PlatformAdminDashboard } from './components/admin/PlatformAdminDashboard';
+import { AdminLoginPage } from './components/admin/AdminLoginPage';
 
 export default function App() {
   const [isLoading, setIsLoading] = useState(true);
-  const [currentView, setCurrentView] = useState<'landing' | 'map' | 'admin'>(() => {
-    if (typeof window !== 'undefined' && window.location.hash === '#admin') {
-      return 'admin';
+  const [currentView, setCurrentView] = useState<'landing' | 'map' | 'admin-login' | 'admin'>(() => {
+    if (typeof window !== 'undefined') {
+      const pathname = window.location.pathname.toLowerCase();
+      const hash = window.location.hash.toLowerCase();
+      if (
+        pathname === '/admin/login' ||
+        pathname.startsWith('/admin/login') ||
+        hash === '#admin/login' ||
+        hash.startsWith('#admin/login')
+      ) {
+        return 'admin-login';
+      }
+      if (
+        pathname === '/admin' ||
+        pathname.startsWith('/admin') ||
+        hash === '#admin' ||
+        hash.startsWith('#admin')
+      ) {
+        return 'admin';
+      }
+      if (pathname === '/map' || hash === '#map') {
+        return 'map';
+      }
     }
     return 'landing';
   });
@@ -59,7 +80,40 @@ export default function App() {
     const unsubscribe = marketApi.subscribe(() => {
       refreshMarkets();
     });
-    return () => unsubscribe();
+
+    const handleUrlRouting = () => {
+      if (typeof window === 'undefined') return;
+      const pathname = window.location.pathname.toLowerCase();
+      const hash = window.location.hash.toLowerCase();
+      if (
+        pathname === '/admin/login' ||
+        pathname.startsWith('/admin/login') ||
+        hash === '#admin/login' ||
+        hash.startsWith('#admin/login')
+      ) {
+        setCurrentView('admin-login');
+      } else if (
+        pathname === '/admin' ||
+        pathname.startsWith('/admin') ||
+        hash === '#admin' ||
+        hash.startsWith('#admin')
+      ) {
+        setCurrentView('admin');
+      } else if (pathname === '/map' || hash === '#map') {
+        setCurrentView('map');
+      } else if (pathname === '/' && !hash.startsWith('#admin')) {
+        setCurrentView('landing');
+      }
+    };
+
+    window.addEventListener('popstate', handleUrlRouting);
+    window.addEventListener('hashchange', handleUrlRouting);
+
+    return () => {
+      unsubscribe();
+      window.removeEventListener('popstate', handleUrlRouting);
+      window.removeEventListener('hashchange', handleUrlRouting);
+    };
   }, []);
 
   const handleSelectMarket = (market: Market) => {
@@ -85,11 +139,39 @@ export default function App() {
         <LoadingScreen onComplete={() => setIsLoading(false)} />
       )}
 
-      {currentView === 'admin' ? (
+      {currentView === 'admin-login' ? (
+        /* Dedicated BazaarLink Admin Login Page (/admin/login) */
+        <AdminLoginPage
+          onPlatformAdminLoginSuccess={() => {
+            if (typeof window !== 'undefined') {
+              window.history.pushState(null, '', '/admin');
+            }
+            setCurrentView('admin');
+          }}
+          onNavigateHome={() => {
+            if (typeof window !== 'undefined') {
+              window.history.pushState(null, '', '/');
+            }
+            setCurrentView('landing');
+          }}
+        />
+      ) : currentView === 'admin' ? (
         /* Dedicated BazaarLink Platform Admin Dashboard */
         <PlatformAdminDashboard
-          onNavigateToPublic={() => setCurrentView('landing')}
-          onLogout={() => setCurrentView('landing')}
+          onNavigateToPublic={() => {
+            if (typeof window !== 'undefined') {
+              window.history.pushState(null, '', '/');
+            }
+            setCurrentView('landing');
+          }}
+          onLogout={() => {
+            if (typeof window !== 'undefined') {
+              localStorage.removeItem('bazaarlink_admin_token');
+              localStorage.removeItem('bazaarlink_admin_user');
+              window.history.pushState(null, '', '/admin/login');
+            }
+            setCurrentView('admin-login');
+          }}
           onOpenShopModal={handleOpenShopModal}
           onViewOnMap={(market) => {
             setSelectedMarketId(market.id);
@@ -201,7 +283,6 @@ export default function App() {
         isOpen={authModalState.isOpen}
         initialMode={authModalState.mode}
         onClose={() => setAuthModalState({ isOpen: false, mode: 'login' })}
-        onAdminLogin={() => setCurrentView('admin')}
       />
     </div>
   );

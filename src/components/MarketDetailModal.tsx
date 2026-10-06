@@ -51,7 +51,7 @@ export const MarketDetailModal: React.FC<MarketDetailModalProps> = ({ market, on
         onClick={(e) => e.stopPropagation()}
       >
         {/* Modal Header */}
-        <div className="bg-gradient-to-r from-[#1E4E8C] to-[#3FA0C8] p-6 text-white relative">
+        <div className="bg-gradient-to-r from-[#0A1128] via-[#1E4E8C] to-[#0D9488] p-6 text-white relative">
           <button
             onClick={onClose}
             className="absolute top-5 right-5 p-2 rounded-full bg-white/10 hover:bg-white/20 text-white transition-colors cursor-pointer"
@@ -61,14 +61,14 @@ export const MarketDetailModal: React.FC<MarketDetailModalProps> = ({ market, on
           </button>
 
           {/* Breadcrumb journey bar */}
-          <div className="flex items-center gap-2 text-xs font-semibold text-sky-100 mb-3 flex-wrap">
+          <div className="flex items-center gap-2 text-xs font-semibold text-teal-100 mb-3 flex-wrap">
             <span className="bg-white/20 px-2 py-0.5 rounded-md">Market: {market.name}</span>
             <ArrowRight className="w-3.5 h-3.5" />
             <span className={`px-2 py-0.5 rounded-md ${selectedShop ? 'bg-white text-[#1E4E8C]' : 'bg-white/10 text-white'}`}>
               {selectedShop ? `Shop: ${selectedShop.name}` : 'Browse Shops'}
             </span>
             <ArrowRight className="w-3.5 h-3.5" />
-            <span className={`px-2 py-0.5 rounded-md ${cartCount > 0 ? 'bg-[#2EC4B6] text-white font-bold' : 'bg-white/10 text-white/70'}`}>
+            <span className={`px-2 py-0.5 rounded-md ${cartCount > 0 ? 'bg-[#14B8A6] text-white font-bold' : 'bg-white/10 text-white/70'}`}>
               Cart ({cartCount})
             </span>
             {orderPlaced && (
@@ -245,7 +245,7 @@ export const MarketDetailModal: React.FC<MarketDetailModalProps> = ({ market, on
 
                         <button
                           onClick={() => handleAddToCart(product)}
-                          className="px-3 py-1.5 text-xs font-semibold text-white bg-gradient-to-r from-[#1E4E8C] to-[#3FA0C8] hover:from-[#173e70] hover:to-[#358aa8] rounded-xl shadow-xs transition-transform active:scale-95 cursor-pointer flex items-center gap-1.5"
+                          className="px-3 py-1.5 text-xs font-semibold text-white bg-[#0D9488] hover:bg-[#0F766E] rounded-xl shadow-xs transition-transform active:scale-95 cursor-pointer flex items-center gap-1.5"
                         >
                           <ShoppingBag className="w-3.5 h-3.5" />
                           <span>Add</span>
@@ -258,7 +258,7 @@ export const MarketDetailModal: React.FC<MarketDetailModalProps> = ({ market, on
 
               {/* Simulated Cart Checkout Bar */}
               {cartCount > 0 && (
-                <div className="bg-[#1E4E8C]/5 rounded-2xl p-4 border border-[#3FA0C8]/30 flex items-center justify-between flex-wrap gap-3">
+                <div className="bg-[#1E4E8C]/5 rounded-2xl p-4 border border-[#0D9488]/30 flex items-center justify-between flex-wrap gap-3">
                   <div className="flex items-center gap-3">
                     <div className="w-10 h-10 rounded-xl bg-[#1E4E8C] text-white flex items-center justify-center font-bold">
                       <ShoppingCart className="w-5 h-5" />
@@ -274,7 +274,7 @@ export const MarketDetailModal: React.FC<MarketDetailModalProps> = ({ market, on
                   </div>
                   <button
                     onClick={handleSimulateOrder}
-                    className="px-5 py-2.5 text-xs font-bold text-white bg-[#2EC4B6] hover:bg-[#25aa9e] rounded-xl shadow-md transition-all cursor-pointer flex items-center gap-1.5 active:scale-95"
+                    className="px-5 py-2.5 text-xs font-bold text-white bg-[#0D9488] hover:bg-[#0F766E] rounded-xl shadow-md transition-all cursor-pointer flex items-center gap-1.5 active:scale-95"
                   >
                     <span>Place Test Order & Track</span>
                     <ArrowRight className="w-3.5 h-3.5" />
@@ -304,7 +304,7 @@ export const MarketDetailModal: React.FC<MarketDetailModalProps> = ({ market, on
                   <div
                     key={shop.id}
                     onClick={() => setSelectedShop(shop)}
-                    className="bg-[#F8FAFC] rounded-2xl p-5 border border-slate-200 hover:border-[#3FA0C8] hover:bg-white hover:shadow-md transition-all duration-200 cursor-pointer group flex flex-col justify-between"
+                    className="bg-[#F8FAFC] rounded-2xl p-5 border border-slate-200 hover:border-[#0D9488] hover:bg-white hover:shadow-md transition-all duration-200 cursor-pointer group flex flex-col justify-between"
                   >
                     <div className="space-y-3">
                       <div className="flex items-start justify-between gap-2">
@@ -341,7 +341,7 @@ export const MarketDetailModal: React.FC<MarketDetailModalProps> = ({ market, on
                         <span className="text-slate-400">({shop.reviewsCount})</span>
                       </div>
 
-                      <span className="text-[#3FA0C8] font-semibold flex items-center gap-1 group-hover:translate-x-0.5 transition-transform">
+                      <span className="text-[#0D9488] font-semibold flex items-center gap-1 group-hover:translate-x-0.5 transition-transform">
                         <span>Browse Products ({shop.productCount})</span>
                         <ArrowRight className="w-3.5 h-3.5" />
                       </span>
@@ -356,7 +356,7 @@ export const MarketDetailModal: React.FC<MarketDetailModalProps> = ({ market, on
         {/* Modal Footer */}
         <div className="bg-slate-50 px-6 py-4 border-t border-slate-200 flex items-center justify-between text-xs text-slate-500">
           <div className="flex items-center gap-2">
-            <MapPin className="w-3.5 h-3.5 text-[#3FA0C8]" />
+            <MapPin className="w-3.5 h-3.5 text-[#0D9488]" />
             <span>GPS: {market.latitude.toFixed(4)}° N, {market.longitude.toFixed(4)}° E</span>
           </div>
           <button

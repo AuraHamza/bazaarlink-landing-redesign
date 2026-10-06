@@ -49,7 +49,7 @@ export const DbSimulatorModal: React.FC<DbSimulatorModalProps> = ({
 
   const handleReset = () => {
     marketApi.resetToDefault();
-    setApiLogs((prev) => ['POST /admin/reset -> Database reverted to seed state', ...prev.slice(0, 7)]);
+    setApiLogs((prev) => ['POST /api/db/reset -> Database reverted to seed state', ...prev.slice(0, 7)]);
     loadData();
     onDataChanged();
   };
@@ -107,16 +107,16 @@ export const DbSimulatorModal: React.FC<DbSimulatorModalProps> = ({
         onClick={(e) => e.stopPropagation()}
       >
         {/* Header */}
-        <div className="bg-[#1E4E8C] px-6 py-4 text-white flex items-center justify-between">
+        <div className="bg-gradient-to-r from-[#0A1128] via-[#1E4E8C] to-[#0D9488] px-6 py-4 text-white flex items-center justify-between">
           <div className="flex items-center gap-2.5">
-            <div className="p-2 rounded-xl bg-white/10 text-sky-200">
+            <div className="p-2 rounded-xl bg-white/10 text-teal-200">
               <Database className="w-5 h-5" />
             </div>
             <div>
               <h3 className="text-base font-bold font-['Lexend']">
                 BazaarLink Database Sync Simulator
               </h3>
-              <p className="text-xs text-sky-200">
+              <p className="text-xs text-teal-200">
                 Test database-driven map markers: Active vs Inactive reactivity
               </p>
             </div>
@@ -132,11 +132,11 @@ export const DbSimulatorModal: React.FC<DbSimulatorModalProps> = ({
         {/* Content */}
         <div className="p-6 overflow-y-auto flex-1 space-y-6 text-sm">
           {/* Architecture requirement callout */}
-          <div className="bg-sky-50 border border-sky-200 rounded-2xl p-4 text-xs text-sky-900 flex items-start gap-3">
-            <Sparkles className="w-4 h-4 text-[#3FA0C8] shrink-0 mt-0.5" />
+          <div className="bg-teal-50/70 border border-teal-200 rounded-2xl p-4 text-xs text-teal-950 flex items-start gap-3">
+            <Sparkles className="w-4 h-4 text-[#0D9488] shrink-0 mt-0.5" />
             <p>
               <strong>Architecture Verification:</strong> BazaarLink markers are populated from{' '}
-              <code className="bg-white px-1.5 py-0.5 rounded border border-sky-200 font-mono">GET /markets WHERE status = &apos;active&apos;</code>.
+              <code className="bg-white px-1.5 py-0.5 rounded border border-teal-200 font-mono text-teal-900">GET /markets WHERE status = &apos;active&apos;</code>.
               Toggle any market below to watch it instantly appear on or disappear from the map!
             </p>
           </div>
@@ -218,7 +218,7 @@ export const DbSimulatorModal: React.FC<DbSimulatorModalProps> = ({
                   </button>
                   <button
                     type="submit"
-                    className="px-3 py-1 text-xs font-semibold text-white bg-[#1E4E8C] rounded-lg shadow-xs hover:bg-[#173e70]"
+                    className="px-3 py-1 text-xs font-semibold text-white bg-[#0D9488] rounded-lg shadow-xs hover:bg-[#0F766E]"
                   >
                     Save & Inject into DB
                   </button>

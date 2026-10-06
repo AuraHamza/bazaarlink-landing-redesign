@@ -4,16 +4,27 @@
   --font-sans: 'Inter', system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
   --font-heading: 'Lexend', 'Inter', system-ui, sans-serif;
   
+  --color-bazaar-canvas: #F8FAFC;
+  --color-bazaar-surface: #FFFFFF;
   --color-bazaar-primary: #1E4E8C;
-  --color-bazaar-cyan: #3FA0C8;
-  --color-bazaar-teal: #2EC4B6;
-  --color-bazaar-bg: #F8FAFC;
+  --color-bazaar-command: #0A1128;
+  --color-bazaar-command-secondary: #0F1E36;
+  --color-bazaar-teal: #0D9488;
+  --color-bazaar-vibrant-teal: #14B8A6;
+  --color-bazaar-cyan: #0284C7;
+  --color-bazaar-success: #10B981;
+  --color-bazaar-warning: #F59E0B;
+  --color-bazaar-error: #EF4444;
+  --color-bazaar-inactive: #64748B;
+  --color-bazaar-border: #E2E8F0;
+  --color-bazaar-text: #0F172A;
+  --color-bazaar-text-muted: #475569;
 }
 
 body {
   font-family: var(--font-sans);
   background-color: #F8FAFC;
-  color: #1e293b;
+  color: #0F172A;
 }
 
 h1, h2, h3, h4, h5, h6 {
@@ -60,11 +71,11 @@ h1, h2, h3, h4, h5, h6 {
 @keyframes splash-pulse {
   0%, 100% {
     transform: scale(1);
-    box-shadow: 0 10px 25px -5px rgba(30, 78, 140, 0.25), 0 8px 10px -6px rgba(63, 160, 200, 0.2);
+    box-shadow: 0 10px 25px -5px rgba(30, 78, 140, 0.25), 0 8px 10px -6px rgba(13, 148, 136, 0.2);
   }
   50% {
     transform: scale(1.05);
-    box-shadow: 0 16px 32px -4px rgba(46, 196, 182, 0.35), 0 10px 14px -6px rgba(63, 160, 200, 0.25);
+    box-shadow: 0 16px 32px -4px rgba(13, 148, 136, 0.35), 0 10px 14px -6px rgba(20, 184, 166, 0.25);
   }
 }
 

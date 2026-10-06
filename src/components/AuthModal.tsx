@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { X, MapPin, Store, User, ArrowRight, ShieldCheck } from 'lucide-react';
+import { X, MapPin, Store, User, ArrowRight, CheckCircle2 } from 'lucide-react';
 
 interface AuthModalProps {
   isOpen: boolean;
@@ -8,7 +8,7 @@ interface AuthModalProps {
   onAdminLogin?: () => void;
 }
 
-export const AuthModal: React.FC<AuthModalProps> = ({ isOpen, initialMode, onClose, onAdminLogin }) => {
+export const AuthModal: React.FC<AuthModalProps> = ({ isOpen, initialMode, onClose }) => {
   const [mode, setMode] = useState<'login' | 'register'>(initialMode);
   const [role, setRole] = useState<'shopper' | 'merchant'>('shopper');
   const [email, setEmail] = useState('');
@@ -37,7 +37,7 @@ export const AuthModal: React.FC<AuthModalProps> = ({ isOpen, initialMode, onClo
         onClick={(e) => e.stopPropagation()}
       >
         {/* Header */}
-        <div className="bg-gradient-to-r from-[#1E4E8C] to-[#3FA0C8] p-6 text-white relative">
+        <div className="bg-gradient-to-r from-[#0A1128] via-[#1E4E8C] to-[#0D9488] p-6 text-white relative">
           <button
             onClick={onClose}
             className="absolute top-4 right-4 p-1.5 rounded-full bg-white/10 hover:bg-white/20 text-white transition-colors cursor-pointer"
@@ -57,7 +57,7 @@ export const AuthModal: React.FC<AuthModalProps> = ({ isOpen, initialMode, onClo
           <h3 className="text-xl font-extrabold font-['Lexend']">
             {mode === 'login' ? 'Welcome Back to BazaarLink' : 'Start Exploring Local Markets'}
           </h3>
-          <p className="text-xs text-sky-100 mt-1">
+          <p className="text-xs text-teal-100 mt-1">
             {mode === 'login'
               ? 'Access your orders, saved shops, and market carts.'
               : 'Join as a local Karachi shopper or register your market shop.'}
@@ -69,13 +69,13 @@ export const AuthModal: React.FC<AuthModalProps> = ({ isOpen, initialMode, onClo
           {submitted ? (
             <div className="py-8 text-center space-y-2">
               <div className="w-12 h-12 rounded-full bg-emerald-100 text-emerald-600 flex items-center justify-center mx-auto">
-                <ShieldCheck className="w-6 h-6" />
+                <CheckCircle2 className="w-6 h-6" />
               </div>
               <h4 className="text-base font-bold text-slate-900 font-['Lexend']">
                 {mode === 'login' ? 'Logged In Successfully!' : 'Account Created!'}
               </h4>
               <p className="text-xs text-slate-500">
-                Redirecting to your BazaarLink dashboard...
+                Redirecting to your BazaarLink account...
               </p>
             </div>
           ) : (
@@ -120,7 +120,7 @@ export const AuthModal: React.FC<AuthModalProps> = ({ isOpen, initialMode, onClo
                   placeholder="name@example.com"
                   value={email}
                   onChange={(e) => setEmail(e.target.value)}
-                  className="w-full px-3.5 py-2.5 text-sm bg-slate-50 border border-slate-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-[#3FA0C8] focus:bg-white"
+                  className="w-full px-3.5 py-2.5 text-sm bg-slate-50 border border-slate-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-[#0D9488] focus:bg-white"
                 />
               </div>
 
@@ -130,7 +130,7 @@ export const AuthModal: React.FC<AuthModalProps> = ({ isOpen, initialMode, onClo
                     Password
                   </label>
                   {mode === 'login' && (
-                    <span className="text-[11px] text-[#1E4E8C] hover:underline cursor-pointer">
+                    <span className="text-[11px] text-[#1E4E8C] hover:text-[#0D9488] hover:underline cursor-pointer">
                       Forgot password?
                     </span>
                   )}
@@ -141,33 +141,17 @@ export const AuthModal: React.FC<AuthModalProps> = ({ isOpen, initialMode, onClo
                   placeholder="••••••••"
                   value={password}
                   onChange={(e) => setPassword(e.target.value)}
-                  className="w-full px-3.5 py-2.5 text-sm bg-slate-50 border border-slate-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-[#3FA0C8] focus:bg-white"
+                  className="w-full px-3.5 py-2.5 text-sm bg-slate-50 border border-slate-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-[#0D9488] focus:bg-white"
                 />
               </div>
 
               <button
                 type="submit"
-                className="w-full py-3 text-sm font-bold text-white bg-gradient-to-r from-[#1E4E8C] to-[#3FA0C8] hover:from-[#173e70] hover:to-[#358aa8] rounded-xl shadow-md shadow-[#1E4E8C]/20 transition-all cursor-pointer flex items-center justify-center gap-1.5 active:scale-98"
+                className="w-full py-3 text-sm font-bold text-white bg-[#0D9488] hover:bg-[#0F766E] rounded-xl shadow-md transition-all cursor-pointer flex items-center justify-center gap-1.5 active:scale-98"
               >
                 <span>{mode === 'login' ? 'Sign In to BazaarLink' : 'Create Free Account'}</span>
                 <ArrowRight className="w-4 h-4" />
               </button>
-
-              {mode === 'login' && onAdminLogin && (
-                <div className="pt-2">
-                  <button
-                    type="button"
-                    onClick={() => {
-                      onClose();
-                      onAdminLogin();
-                    }}
-                    className="w-full py-2.5 px-3 bg-blue-50 hover:bg-blue-100 text-[#1E4E8C] border border-blue-200/80 rounded-xl text-xs font-bold transition-colors cursor-pointer flex items-center justify-center gap-2"
-                  >
-                    <ShieldCheck className="w-4 h-4 text-[#3FA0C8]" />
-                    <span>Sign In as Platform Super Admin</span>
-                  </button>
-                </div>
-              )}
 
               <div className="text-center pt-2">
                 {mode === 'login' ? (
@@ -176,7 +160,7 @@ export const AuthModal: React.FC<AuthModalProps> = ({ isOpen, initialMode, onClo
                     <button
                       type="button"
                       onClick={() => setMode('register')}
-                      className="text-[#1E4E8C] font-semibold hover:underline cursor-pointer"
+                      className="text-[#1E4E8C] hover:text-[#0D9488] font-semibold hover:underline cursor-pointer"
                     >
                       Get Started
                     </button>
@@ -187,7 +171,7 @@ export const AuthModal: React.FC<AuthModalProps> = ({ isOpen, initialMode, onClo
                     <button
                       type="button"
                       onClick={() => setMode('login')}
-                      className="text-[#1E4E8C] font-semibold hover:underline cursor-pointer"
+                      className="text-[#1E4E8C] hover:text-[#0D9488] font-semibold hover:underline cursor-pointer"
                     >
                       Sign In
                     </button>

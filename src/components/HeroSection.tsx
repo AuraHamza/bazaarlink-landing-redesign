@@ -37,7 +37,7 @@ export const HeroSection: React.FC<HeroSectionProps> = ({
           {/* Main Heading */}
           <h1 className="text-4xl sm:text-5xl lg:text-6xl font-extrabold tracking-tight text-slate-900 font-['Lexend'] leading-[1.12]">
             Explore Karachi&apos;s Markets.{' '}
-            <span className="bg-gradient-to-r from-[#1E4E8C] via-[#3FA0C8] to-[#2EC4B6] bg-clip-text text-transparent">
+            <span className="bg-gradient-to-r from-[#1E4E8C] via-[#0D9488] to-[#14B8A6] bg-clip-text text-transparent">
               Discover Local Shops.
             </span>
           </h1>
@@ -52,7 +52,7 @@ export const HeroSection: React.FC<HeroSectionProps> = ({
             {/* Primary CTA */}
             <button
               onClick={onExploreMarketsClick}
-              className="px-6 py-3.5 text-base font-semibold text-white bg-gradient-to-r from-[#1E4E8C] to-[#3FA0C8] hover:from-[#173e70] hover:to-[#358aa8] rounded-2xl shadow-md shadow-[#1E4E8C]/25 transition-all duration-200 cursor-pointer flex items-center gap-2 group active:scale-[0.98]"
+              className="px-6 py-3.5 text-base font-semibold text-white bg-gradient-to-r from-[#1E4E8C] to-[#0D9488] hover:from-[#173e70] hover:to-[#0b7a70] rounded-2xl shadow-md shadow-[#1E4E8C]/25 transition-all duration-200 cursor-pointer flex items-center gap-2 group active:scale-[0.98]"
             >
               <span>Explore Markets</span>
               <ArrowRight className="w-4 h-4 group-hover:translate-x-1 transition-transform" />
@@ -63,7 +63,7 @@ export const HeroSection: React.FC<HeroSectionProps> = ({
               onClick={onExploreMapClick}
               className="px-6 py-3.5 text-base font-semibold text-slate-700 bg-white hover:bg-slate-50 border border-slate-200 hover:border-slate-300 rounded-2xl shadow-2xs transition-all duration-200 cursor-pointer flex items-center gap-2 text-slate-800"
             >
-              <Compass className="w-4 h-4 text-[#3FA0C8]" />
+              <Compass className="w-4 h-4 text-[#0D9488]" />
               <span>Explore the Map</span>
             </button>
           </div>

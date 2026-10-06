@@ -35,50 +35,50 @@ export const RegionalHubsList: React.FC<RegionalHubsListProps> = ({
           return (
             <div
               key={hub.id}
-              className="bg-white rounded-3xl p-5 border border-slate-200/90 shadow-sm space-y-4 hover:border-[#3FA0C8] transition-all"
+              className="bg-white rounded-2xl p-6 border border-slate-200 shadow-sm space-y-4 hover:shadow-md transition-all"
             >
               <div className="flex items-start justify-between gap-2">
                 <div className="flex items-center gap-3">
-                  <div className="w-10 h-10 rounded-2xl bg-blue-50 text-[#1E4E8C] flex items-center justify-center shrink-0">
-                    <Globe2 className="w-5 h-5" />
+                  <div className="w-10 h-10 rounded-xl bg-teal-50 border border-teal-100 text-teal-700 flex items-center justify-center shrink-0">
+                    <Globe2 className="w-5 h-5 text-teal-700" />
                   </div>
                   <div>
                     <h3 className="text-base font-bold text-slate-900 font-['Lexend']">
                       {hub.city}
                     </h3>
-                    <p className="text-xs text-slate-500">
+                    <p className="text-xs text-slate-500 font-medium">
                       {hub.name}
                     </p>
                   </div>
                 </div>
 
-                <span className="text-[10px] font-bold text-emerald-700 bg-emerald-50 px-2 py-0.5 rounded-full border border-emerald-200 flex items-center gap-1 shrink-0">
+                <span className="text-[10px] font-bold text-emerald-600 bg-emerald-50 px-2.5 py-0.5 rounded-full border border-emerald-200 flex items-center gap-1.5 shrink-0 font-mono">
                   <span className="w-1.5 h-1.5 rounded-full bg-emerald-500" />
                   {hub.status}
                 </span>
               </div>
 
-              <div className="grid grid-cols-2 gap-2 text-xs pt-3 border-t border-slate-100">
+              <div className="grid grid-cols-2 gap-3 text-xs pt-3 border-t border-slate-100">
                 <div>
-                  <span className="text-[10px] font-semibold text-slate-400 uppercase tracking-wider block">
-                    Hub Code
+                  <span className="text-[10px] font-bold text-slate-400 uppercase tracking-wider block font-mono">
+                    HUB CODE
                   </span>
-                  <span className="font-mono text-slate-800 font-semibold text-[11px] truncate block">
+                  <span className="font-mono text-slate-900 font-semibold text-xs truncate block mt-0.5">
                     {hub.hubCode || hub.id}
                   </span>
                 </div>
                 <div>
-                  <span className="text-[10px] font-semibold text-slate-400 uppercase tracking-wider block">
-                    Connected Markets
+                  <span className="text-[10px] font-bold text-slate-400 uppercase tracking-wider block font-mono">
+                    CONNECTED MARKETS
                   </span>
-                  <span className="text-slate-800 font-bold">
+                  <span className="text-slate-900 font-bold text-xs block mt-0.5">
                     {connectedMarkets.length} Market{connectedMarkets.length === 1 ? '' : 's'}
                   </span>
                 </div>
               </div>
 
-              <div className="pt-2 border-t border-slate-100 text-[11px] text-slate-500 flex items-center justify-between">
-                <span>Province: <strong className="text-slate-700 font-medium">{hub.province}</strong></span>
+              <div className="pt-2.5 border-t border-slate-100 text-xs text-slate-500 flex items-center justify-between font-medium">
+                <span>Province: <strong className="text-slate-800 font-semibold">{hub.province}</strong></span>
                 <span>Created: {hub.createdAt}</span>
               </div>
             </div>

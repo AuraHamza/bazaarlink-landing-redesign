@@ -15,59 +15,66 @@ export const TelemetryMetricsGrid: React.FC<TelemetryMetricsGridProps> = ({
   verifiedAdmins,
 }) => {
   return (
-    <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
-      {/* 1. Regional Hubs / Cities */}
-      <div className="bg-white rounded-3xl p-5 border border-slate-200/90 shadow-2xs">
-        <div className="flex items-center justify-between text-slate-500 mb-2">
-          <span className="text-[10px] font-bold uppercase tracking-wider text-slate-500">
+    <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+      {/* 1. Regional Hubs / Cities: Emerald to Teal Gradient */}
+      <div className="bg-gradient-to-r from-emerald-600 to-teal-700 text-white rounded-2xl p-6 shadow-md shadow-emerald-950/10 flex flex-col justify-between relative overflow-hidden">
+        <div className="flex items-center justify-between mb-3">
+          <span className="text-[10px] font-bold uppercase tracking-wider text-emerald-100 font-mono">
             REGIONAL HUBS / CITIES
           </span>
-          <div className="w-8 h-8 rounded-xl bg-blue-50 text-[#1E4E8C] flex items-center justify-center">
-            <Globe2 className="w-4 h-4" />
+          <span className="text-[9px] font-extrabold uppercase tracking-widest bg-emerald-500/30 border border-emerald-300/40 text-emerald-100 px-2 py-0.5 rounded-full font-mono">
+            ACTIVE
+          </span>
+        </div>
+        <div>
+          <div className="text-4xl sm:text-5xl font-black font-['Lexend'] tracking-tight leading-none text-white drop-shadow-xs">
+            {String(totalHubs).padStart(2, '0')}
           </div>
+          <span className="text-xs text-emerald-100/90 mt-2 block font-medium">
+            Active regional metropolitan hubs
+          </span>
         </div>
-        <div className="text-3xl font-extrabold text-slate-900 font-['Lexend'] leading-none">
-          {String(totalHubs).padStart(2, '0')}
-        </div>
-        <span className="text-xs text-slate-500 mt-1 block">
-          Active regional metropolitan hubs
-        </span>
       </div>
 
-      {/* 2. Active Markets */}
-      <div className="bg-white rounded-3xl p-5 border border-slate-200/90 shadow-2xs">
-        <div className="flex items-center justify-between text-slate-500 mb-2">
-          <span className="text-[10px] font-bold uppercase tracking-wider text-slate-500">
+      {/* 2. Active Markets: Teal to Cyan Gradient */}
+      <div className="bg-gradient-to-r from-teal-700 to-cyan-700 text-white rounded-2xl p-6 shadow-md shadow-cyan-950/10 flex flex-col justify-between relative overflow-hidden">
+        <div className="flex items-center justify-between mb-3">
+          <span className="text-[10px] font-bold uppercase tracking-wider text-teal-100 font-mono">
             ACTIVE MARKETS
           </span>
-          <div className="w-8 h-8 rounded-xl bg-sky-50 text-[#3FA0C8] flex items-center justify-center">
-            <Store className="w-4 h-4" />
+          <span className="text-[9px] font-extrabold uppercase tracking-widest bg-cyan-500/30 border border-cyan-300/40 text-cyan-100 px-2 py-0.5 rounded-full font-mono flex items-center gap-1">
+            <span className="w-1.5 h-1.5 rounded-full bg-cyan-300 animate-pulse" />
+            LIVE
+          </span>
+        </div>
+        <div>
+          <div className="text-4xl sm:text-5xl font-black font-['Lexend'] tracking-tight leading-none text-white drop-shadow-xs">
+            {String(activeMarkets).padStart(2, '0')}
           </div>
+          <span className="text-xs text-teal-100/90 mt-2 block font-medium">
+            Of {totalMarkets} registered markets
+          </span>
         </div>
-        <div className="text-3xl font-extrabold text-slate-900 font-['Lexend'] leading-none">
-          {String(activeMarkets).padStart(2, '0')}
-        </div>
-        <span className="text-xs text-slate-500 mt-1 block">
-          Of {totalMarkets} registered markets
-        </span>
       </div>
 
-      {/* 3. Verified Market Admins */}
-      <div className="bg-white rounded-3xl p-5 border border-slate-200/90 shadow-2xs">
-        <div className="flex items-center justify-between text-slate-500 mb-2">
-          <span className="text-[10px] font-bold uppercase tracking-wider text-slate-500">
+      {/* 3. Verified Market Admins: White / Slate Card */}
+      <div className="bg-white border border-slate-200 rounded-2xl p-6 shadow-sm text-slate-900 flex flex-col justify-between">
+        <div className="flex items-center justify-between mb-3">
+          <span className="text-[10px] font-bold uppercase tracking-wider text-slate-500 font-mono">
             VERIFIED MARKET ADMINS
           </span>
-          <div className="w-8 h-8 rounded-xl bg-teal-50 text-[#2EC4B6] flex items-center justify-center">
-            <ShieldCheck className="w-4 h-4" />
+          <div className="w-7 h-7 rounded-lg bg-teal-50 border border-teal-200/60 text-teal-700 flex items-center justify-center">
+            <ShieldCheck className="w-3.5 h-3.5" />
           </div>
         </div>
-        <div className="text-3xl font-extrabold text-slate-900 font-['Lexend'] leading-none">
-          {String(verifiedAdmins).padStart(2, '0')}
+        <div>
+          <div className="text-4xl sm:text-5xl font-black font-['Lexend'] tracking-tight leading-none text-slate-900">
+            {String(verifiedAdmins).padStart(2, '0')}
+          </div>
+          <span className="text-xs text-slate-500 mt-2 block font-medium">
+            Commissioned market personnel
+          </span>
         </div>
-        <span className="text-xs text-slate-500 mt-1 block">
-          Commissioned market personnel
-        </span>
       </div>
     </div>
   );
