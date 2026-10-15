@@ -13,7 +13,7 @@ export const HowItWorks: React.FC<HowItWorksProps> = ({ onStepClick }) => {
       description: 'Explore available markets on the interactive map.',
       journeyLabel: 'Market',
       icon: MapPin,
-      accent: 'text-[#1E4E8C] bg-blue-50 border-blue-100',
+      accent: 'text-teal-400 bg-teal-950/70 border-teal-800/60',
     },
     {
       number: '02',
@@ -21,7 +21,7 @@ export const HowItWorks: React.FC<HowItWorksProps> = ({ onStepClick }) => {
       description: 'Open a market and browse the shops inside it.',
       journeyLabel: 'Shop',
       icon: Store,
-      accent: 'text-[#3FA0C8] bg-sky-50 border-sky-100',
+      accent: 'text-cyan-400 bg-cyan-950/70 border-cyan-800/60',
     },
     {
       number: '03',
@@ -29,7 +29,7 @@ export const HowItWorks: React.FC<HowItWorksProps> = ({ onStepClick }) => {
       description: 'Browse products offered by local shops.',
       journeyLabel: 'Product',
       icon: ShoppingBag,
-      accent: 'text-[#2EC4B6] bg-teal-50 border-teal-100',
+      accent: 'text-emerald-400 bg-emerald-950/70 border-emerald-800/60',
     },
     {
       number: '04',
@@ -37,16 +37,16 @@ export const HowItWorks: React.FC<HowItWorksProps> = ({ onStepClick }) => {
       description: 'Add products to your cart, place an order, and track it.',
       journeyLabel: 'Order',
       icon: Truck,
-      accent: 'text-[#1E4E8C] bg-slate-100 border-slate-200',
+      accent: 'text-teal-300 bg-teal-950/50 border-teal-800/50',
     },
   ];
 
   return (
-    <section id="how-it-works" className="py-16 lg:py-24 bg-white border-y border-slate-200/70 scroll-mt-18">
+    <section id="how-it-works" className="py-16 lg:py-24 bg-transparent border-y border-slate-200 scroll-mt-18">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 space-y-12">
         {/* Section Heading & Journey Indicator */}
         <div className="text-center max-w-2xl mx-auto space-y-4">
-          <span className="text-xs font-bold tracking-widest text-[#3FA0C8] uppercase">
+          <span className="text-xs font-bold tracking-widest text-teal-600 uppercase font-mono">
             Simple Customer Journey
           </span>
           <h2 className="text-3xl sm:text-4xl font-extrabold text-slate-900 font-['Lexend'] tracking-tight">
@@ -57,24 +57,24 @@ export const HowItWorks: React.FC<HowItWorksProps> = ({ onStepClick }) => {
           </p>
 
           {/* Visual Progression Banner: Market → Shop → Product → Order */}
-          <div className="inline-flex items-center gap-2 sm:gap-4 p-2 sm:px-5 sm:py-2.5 bg-slate-50 border border-slate-200 rounded-2xl text-xs sm:text-sm font-semibold text-slate-700 shadow-2xs">
-            <span className="text-[#1E4E8C] flex items-center gap-1.5">
-              <span className="w-2 h-2 rounded-full bg-[#1E4E8C]" />
+          <div className="inline-flex items-center gap-2 sm:gap-4 p-2 sm:px-5 sm:py-2.5 bg-white border border-slate-200 rounded-2xl text-xs sm:text-sm font-semibold text-slate-700 shadow-xs font-mono">
+            <span className="text-teal-600 flex items-center gap-1.5 font-bold">
+              <span className="w-2 h-2 rounded-full bg-teal-500" />
               Market
             </span>
             <ArrowRight className="w-3.5 h-3.5 text-slate-400" />
-            <span className="text-[#3FA0C8] flex items-center gap-1.5">
-              <span className="w-2 h-2 rounded-full bg-[#3FA0C8]" />
+            <span className="text-cyan-600 flex items-center gap-1.5 font-bold">
+              <span className="w-2 h-2 rounded-full bg-cyan-500" />
               Shop
             </span>
             <ArrowRight className="w-3.5 h-3.5 text-slate-400" />
-            <span className="text-[#2EC4B6] flex items-center gap-1.5">
-              <span className="w-2 h-2 rounded-full bg-[#2EC4B6]" />
+            <span className="text-emerald-600 flex items-center gap-1.5 font-bold">
+              <span className="w-2 h-2 rounded-full bg-emerald-500" />
               Product
             </span>
             <ArrowRight className="w-3.5 h-3.5 text-slate-400" />
-            <span className="text-slate-700 flex items-center gap-1.5">
-              <span className="w-2 h-2 rounded-full bg-slate-700" />
+            <span className="text-slate-500 flex items-center gap-1.5">
+              <span className="w-2 h-2 rounded-full bg-slate-400" />
               Order
             </span>
           </div>
@@ -88,29 +88,29 @@ export const HowItWorks: React.FC<HowItWorksProps> = ({ onStepClick }) => {
               <div
                 key={step.number}
                 onClick={() => onStepClick && onStepClick(idx + 1)}
-                className="relative bg-[#F8FAFC] rounded-3xl p-6 border border-slate-200 hover:border-[#3FA0C8]/50 hover:shadow-lg hover:shadow-slate-100 transition-all duration-200 group flex flex-col justify-between"
+                className="relative bg-[#0A0E1A] rounded-3xl p-6 border border-slate-800 hover:border-teal-500/50 hover:shadow-xl hover:shadow-teal-950/30 transition-all duration-200 group flex flex-col justify-between text-white cursor-pointer"
               >
                 <div>
                   <div className="flex items-center justify-between mb-5">
-                    <div className={`p-3 rounded-2xl border ${step.accent} group-hover:scale-110 transition-transform duration-200`}>
+                    <div className={`p-3 rounded-2xl border ${step.accent} group-hover:scale-110 transition-transform duration-200 shadow-inner`}>
                       <Icon className="w-6 h-6" />
                     </div>
-                    <span className="text-2xl font-black text-slate-300 font-['Lexend'] group-hover:text-[#3FA0C8]/50 transition-colors">
+                    <span className="text-2xl font-black text-slate-700 font-['Lexend'] group-hover:text-teal-500/40 transition-colors">
                       {step.number}
                     </span>
                   </div>
 
-                  <h3 className="text-lg font-bold text-slate-900 font-['Lexend'] mb-2">
+                  <h3 className="text-lg font-bold text-white font-['Lexend'] mb-2">
                     {step.title}
                   </h3>
-                  <p className="text-sm text-slate-600 leading-relaxed">
+                  <p className="text-sm text-slate-300 leading-relaxed">
                     {step.description}
                   </p>
                 </div>
 
-                <div className="mt-6 pt-4 border-t border-slate-200/70 flex items-center justify-between text-xs text-slate-500">
-                  <span className="font-medium text-[#1E4E8C]">Step {step.number}</span>
-                  <span className="text-slate-400 group-hover:text-[#3FA0C8] font-medium transition-colors">
+                <div className="mt-6 pt-4 border-t border-slate-800/80 flex items-center justify-between text-xs text-slate-400">
+                  <span className="font-semibold text-teal-400 font-mono">Step {step.number}</span>
+                  <span className="text-slate-400 group-hover:text-cyan-300 font-medium transition-colors font-mono">
                     {step.journeyLabel}
                   </span>
                 </div>

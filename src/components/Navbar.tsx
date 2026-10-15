@@ -5,8 +5,9 @@ interface NavbarProps {
   onOpenAuth: (mode: 'login' | 'register') => void;
   onNavigateToSection: (sectionId: string) => void;
   onExploreMarkets: () => void;
-  currentView?: 'landing' | 'map' | 'admin';
-  onNavigateView?: (view: 'landing' | 'map' | 'admin') => void;
+  currentView?: 'landing' | 'map' | 'admin' | 'login' | 'admin-login';
+  onNavigateView?: (view: 'landing' | 'map' | 'admin' | 'login' | 'admin-login') => void;
+  onNavigateToLogin?: () => void;
 }
 
 export const Navbar: React.FC<NavbarProps> = ({
@@ -15,6 +16,7 @@ export const Navbar: React.FC<NavbarProps> = ({
   onExploreMarkets,
   currentView = 'landing',
   onNavigateView,
+  onNavigateToLogin,
 }) => {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
 
@@ -60,22 +62,22 @@ export const Navbar: React.FC<NavbarProps> = ({
   };
 
   return (
-    <header className="sticky top-0 z-40 w-full bg-[#F8FAFC]/90 backdrop-blur-md border-b border-slate-200/80 transition-colors">
+    <header className="sticky top-0 z-40 w-full bg-[#0A0E1A]/95 backdrop-blur-md border-b border-slate-800 transition-colors">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex items-center justify-between h-18">
           {/* Left: BazaarLink Logo & Brand */}
           <button
             onClick={handleGoToHome}
-            className="flex items-center gap-2.5 group text-left cursor-pointer focus:outline-none focus-visible:ring-2 focus-visible:ring-[#0D9488] rounded-lg p-1"
+            className="flex items-center gap-2.5 group text-left cursor-pointer focus:outline-none focus-visible:ring-2 focus-visible:ring-teal-500 rounded-lg p-1"
           >
-            <div className="w-9 h-9 rounded-xl bg-gradient-to-br from-[#1E4E8C] to-[#0D9488] flex items-center justify-center text-white shadow-sm shadow-[#1E4E8C]/20 group-hover:scale-105 transition-transform duration-200">
+            <div className="w-9 h-9 rounded-xl bg-gradient-to-br from-teal-500 to-cyan-500 flex items-center justify-center text-white shadow-xs shadow-teal-500/20 group-hover:scale-105 transition-transform duration-200">
               <MapPin className="w-5 h-5 text-white" strokeWidth={2.3} />
             </div>
             <div className="flex flex-col">
-              <span className="text-xl font-bold tracking-tight text-[#1E4E8C] font-['Lexend'] leading-none">
-                Bazaar<span className="text-[#0D9488]">Link</span>
+              <span className="text-xl font-extrabold tracking-tight text-white font-['Lexend'] leading-none">
+                Bazaar<span className="text-teal-400">Link</span>
               </span>
-              <span className="text-[10px] font-medium text-slate-500 tracking-wider uppercase mt-0.5">
+              <span className="text-[10px] font-medium text-slate-400 tracking-wider uppercase mt-0.5 font-mono">
                 Karachi Markets
               </span>
             </div>
@@ -87,21 +89,21 @@ export const Navbar: React.FC<NavbarProps> = ({
               onClick={handleGoToMap}
               className={`text-sm font-medium transition-colors cursor-pointer py-1 flex items-center gap-1.5 ${
                 currentView === 'map'
-                  ? 'text-[#1E4E8C] font-bold border-b-2 border-[#1E4E8C]'
-                  : 'text-slate-600 hover:text-[#1E4E8C]'
+                  ? 'text-teal-400 font-bold border-b-2 border-teal-400'
+                  : 'text-slate-300 hover:text-white'
               }`}
             >
               <span>Map</span>
               {currentView === 'map' && (
-                <span className="w-1.5 h-1.5 rounded-full bg-[#0D9488]" />
+                <span className="w-1.5 h-1.5 rounded-full bg-teal-400" />
               )}
             </button>
             <button
               onClick={handleExplore}
               className={`text-sm font-medium transition-colors cursor-pointer py-1 ${
                 currentView === 'landing'
-                  ? 'text-slate-700 hover:text-[#1E4E8C]'
-                  : 'text-slate-600 hover:text-[#1E4E8C]'
+                  ? 'text-slate-200 hover:text-teal-400'
+                  : 'text-slate-300 hover:text-white'
               }`}
             >
               Explore
@@ -111,14 +113,20 @@ export const Navbar: React.FC<NavbarProps> = ({
           {/* Right: Appropriate Public Actions */}
           <div className="hidden md:flex items-center gap-3">
             <button
-              onClick={() => onOpenAuth('login')}
-              className="px-4 py-2 text-sm font-medium text-slate-700 hover:text-[#1E4E8C] transition-colors cursor-pointer rounded-lg hover:bg-slate-100/70"
+              onClick={() => {
+                if (onNavigateToLogin) {
+                  onNavigateToLogin();
+                } else {
+                  onOpenAuth('login');
+                }
+              }}
+              className="px-4 py-2 text-xs font-semibold text-slate-200 border border-slate-700 bg-slate-900/60 hover:bg-slate-800 hover:text-white transition-all cursor-pointer rounded-xl"
             >
               Login
             </button>
             <button
               onClick={() => onOpenAuth('register')}
-              className="px-4 py-2 text-sm font-semibold text-white bg-gradient-to-r from-[#1E4E8C] to-[#0D9488] hover:from-[#173e70] hover:to-[#0b7a70] rounded-xl shadow-sm shadow-[#1E4E8C]/25 transition-all duration-200 cursor-pointer flex items-center gap-1.5 active:scale-[0.98]"
+              className="px-4 py-2 text-xs font-semibold text-white bg-gradient-to-r from-teal-500 to-cyan-500 hover:brightness-110 rounded-xl shadow-md shadow-teal-500/20 transition-all duration-200 cursor-pointer flex items-center gap-1.5 active:scale-[0.98]"
             >
               Get Started
               <ChevronRight className="w-4 h-4" />
@@ -129,7 +137,7 @@ export const Navbar: React.FC<NavbarProps> = ({
           <div className="flex md:hidden">
             <button
               onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
-              className="p-2 rounded-lg text-slate-600 hover:text-slate-900 hover:bg-slate-100 focus:outline-none"
+              className="p-2 rounded-xl text-slate-300 hover:text-white hover:bg-slate-800/80 border border-slate-700/60 focus:outline-none"
               aria-label="Toggle Menu"
             >
               {mobileMenuOpen ? <X className="w-6 h-6" /> : <Menu className="w-6 h-6" />}
@@ -140,28 +148,32 @@ export const Navbar: React.FC<NavbarProps> = ({
 
       {/* Mobile Menu Dropdown */}
       {mobileMenuOpen && (
-        <div className="md:hidden border-b border-slate-200 bg-white/95 backdrop-blur-md px-4 pt-3 pb-5 space-y-3">
+        <div className="md:hidden border-b border-slate-800 bg-[#0A0E1A]/98 backdrop-blur-md px-4 pt-3 pb-5 space-y-3">
           <div className="flex flex-col space-y-2">
             <button
               onClick={handleGoToMap}
-              className="text-left px-3 py-2 text-base font-medium text-[#1E4E8C] font-semibold hover:bg-slate-50 rounded-lg"
+              className="text-left px-3 py-2 text-base font-semibold text-teal-400 hover:bg-slate-800/60 rounded-xl"
             >
               Map
             </button>
             <button
               onClick={handleExplore}
-              className="text-left px-3 py-2 text-base font-medium text-slate-700 hover:bg-slate-50 rounded-lg"
+              className="text-left px-3 py-2 text-base font-medium text-slate-200 hover:bg-slate-800/60 rounded-xl"
             >
               Explore
             </button>
           </div>
-          <div className="pt-3 border-t border-slate-100 flex flex-col gap-2">
+          <div className="pt-3 border-t border-slate-800 flex flex-col gap-2">
             <button
               onClick={() => {
                 setMobileMenuOpen(false);
-                onOpenAuth('login');
+                if (onNavigateToLogin) {
+                  onNavigateToLogin();
+                } else {
+                  onOpenAuth('login');
+                }
               }}
-              className="w-full py-2.5 text-center text-sm font-medium text-slate-700 hover:bg-slate-100 rounded-lg"
+              className="w-full py-2.5 text-center text-xs font-semibold text-slate-200 border border-slate-700 bg-slate-900/60 hover:bg-slate-800 hover:text-white rounded-xl"
             >
               Login
             </button>
@@ -170,7 +182,7 @@ export const Navbar: React.FC<NavbarProps> = ({
                 setMobileMenuOpen(false);
                 onOpenAuth('register');
               }}
-              className="w-full py-2.5 text-center text-sm font-semibold text-white bg-gradient-to-r from-[#1E4E8C] to-[#0D9488] rounded-xl shadow-sm"
+              className="w-full py-2.5 text-center text-xs font-semibold text-white bg-gradient-to-r from-teal-500 to-cyan-500 rounded-xl shadow-md shadow-teal-500/20 hover:brightness-110"
             >
               Get Started
             </button>

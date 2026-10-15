@@ -71,46 +71,46 @@ export const EditPersonnelModal: React.FC<EditPersonnelModalProps> = ({
   };
 
   return (
-    <div className="fixed inset-0 z-50 overflow-y-auto bg-slate-900/60 backdrop-blur-sm flex items-center justify-center p-3 sm:p-4 animate-in fade-in duration-150">
+    <div className="fixed inset-0 z-50 overflow-y-auto bg-slate-950/80 backdrop-blur-md flex items-center justify-center p-3 sm:p-4 animate-in fade-in duration-150">
       <div
-        className="bg-white w-full max-w-lg rounded-3xl shadow-2xl border border-slate-200 overflow-hidden flex flex-col"
+        className="bg-[#0A0E1A] w-full max-w-lg rounded-3xl shadow-2xl border border-slate-800 overflow-hidden flex flex-col text-white"
         onClick={(e) => e.stopPropagation()}
       >
         {/* Header */}
-        <div className="bg-gradient-to-r from-[#0A1128] via-[#1E4E8C] to-[#0D9488] p-6 text-white relative">
+        <div className="bg-[#0F172A] border-b border-slate-800 p-6 text-white relative">
           <button
             onClick={onClose}
-            className="absolute top-5 right-5 p-1.5 rounded-full bg-white/10 hover:bg-white/20 text-white transition-colors cursor-pointer"
+            className="absolute top-5 right-5 p-1.5 rounded-xl bg-slate-800/80 hover:bg-slate-700 text-slate-300 hover:text-white transition-colors cursor-pointer border border-slate-700/60"
           >
             <X className="w-5 h-5" />
           </button>
           <div className="flex items-center gap-2 mb-1">
-            <ShieldCheck className="w-4 h-4 text-teal-300" />
-            <span className="text-xs font-bold uppercase tracking-wider text-teal-300 font-mono">
+            <ShieldCheck className="w-4 h-4 text-teal-400" />
+            <span className="text-xs font-bold uppercase tracking-wider text-teal-400 font-mono">
               Personnel Administration
             </span>
           </div>
-          <h3 className="text-xl font-extrabold font-['Lexend'] tracking-tight">
+          <h3 className="text-xl font-extrabold font-['Lexend'] tracking-tight text-white">
             Edit Market Administrator
           </h3>
-          <p className="text-xs text-teal-100 font-mono mt-0.5">
+          <p className="text-xs text-slate-400 font-mono mt-0.5">
             Admin ID: {person.id}
           </p>
         </div>
 
         {/* Form Body */}
-        <form onSubmit={handleSubmit} className="p-6 space-y-4">
+        <form onSubmit={handleSubmit} className="p-6 space-y-4 bg-[#0A0E1A] text-white">
           {error && (
-            <div className="p-3 bg-red-50 border border-red-200 rounded-xl text-xs text-red-700 flex items-start gap-2">
-              <AlertCircle className="w-4 h-4 text-red-600 shrink-0 mt-0.5" />
+            <div className="p-3 bg-red-950/60 border border-red-800/80 rounded-xl text-xs text-red-300 flex items-start gap-2">
+              <AlertCircle className="w-4 h-4 text-red-400 shrink-0 mt-0.5" />
               <span>{error}</span>
             </div>
           )}
 
           {/* Full Name */}
           <div>
-            <label className="text-xs font-bold text-slate-700 block mb-1.5">
-              FULL IDENTITY / NAME <span className="text-red-500">*</span>
+            <label className="text-xs font-bold text-slate-300 block mb-1.5">
+              FULL IDENTITY / NAME <span className="text-teal-400">*</span>
             </label>
             <input
               type="text"
@@ -118,14 +118,14 @@ export const EditPersonnelModal: React.FC<EditPersonnelModalProps> = ({
               value={name}
               onChange={(e) => setName(e.target.value)}
               placeholder="e.g. Shahzain Khan"
-              className="w-full bg-slate-50 border border-slate-200 rounded-xl px-4 py-2.5 text-xs text-slate-900 focus:outline-none focus:ring-2 focus:ring-teal-600 focus:bg-white transition-colors"
+              className="w-full bg-[#0F172A] border border-slate-700 rounded-xl px-4 py-2.5 text-xs text-white focus:outline-none focus:ring-2 focus:ring-teal-500 focus:bg-slate-900 placeholder:text-slate-500 transition-colors"
             />
           </div>
 
           {/* Email */}
           <div>
-            <label className="text-xs font-bold text-slate-700 block mb-1.5">
-              EMAIL PORTAL <span className="text-red-500">*</span>
+            <label className="text-xs font-bold text-slate-300 block mb-1.5">
+              EMAIL PORTAL <span className="text-teal-400">*</span>
             </label>
             <input
               type="email"
@@ -133,13 +133,13 @@ export const EditPersonnelModal: React.FC<EditPersonnelModalProps> = ({
               value={email}
               onChange={(e) => setEmail(e.target.value)}
               placeholder="e.g. shahzain@bazaarlink.pk"
-              className="w-full bg-slate-50 border border-slate-200 rounded-xl px-4 py-2.5 text-xs text-slate-900 focus:outline-none focus:ring-2 focus:ring-teal-600 focus:bg-white transition-colors font-mono"
+              className="w-full bg-[#0F172A] border border-slate-700 rounded-xl px-4 py-2.5 text-xs text-white focus:outline-none focus:ring-2 focus:ring-teal-500 focus:bg-slate-900 placeholder:text-slate-500 transition-colors font-mono"
             />
           </div>
 
           {/* Phone */}
           <div>
-            <label className="text-xs font-bold text-slate-700 block mb-1.5">
+            <label className="text-xs font-bold text-slate-300 block mb-1.5">
               PHONE CONTACT
             </label>
             <input
@@ -147,7 +147,7 @@ export const EditPersonnelModal: React.FC<EditPersonnelModalProps> = ({
               value={phone}
               onChange={(e) => setPhone(e.target.value)}
               placeholder="e.g. +92 300 8291002"
-              className="w-full bg-slate-50 border border-slate-200 rounded-xl px-4 py-2.5 text-xs text-slate-900 focus:outline-none focus:ring-2 focus:ring-teal-600 focus:bg-white transition-colors font-mono"
+              className="w-full bg-[#0F172A] border border-slate-700 rounded-xl px-4 py-2.5 text-xs text-white focus:outline-none focus:ring-2 focus:ring-teal-500 focus:bg-slate-900 placeholder:text-slate-500 transition-colors font-mono"
             />
           </div>
 
@@ -155,13 +155,13 @@ export const EditPersonnelModal: React.FC<EditPersonnelModalProps> = ({
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
             {/* Assigned Market */}
             <div>
-              <label className="text-xs font-bold text-slate-700 block mb-1.5">
+              <label className="text-xs font-bold text-slate-300 block mb-1.5">
                 ASSIGNED MARKET
               </label>
               <select
                 value={assignedMarketId}
                 onChange={(e) => setAssignedMarketId(e.target.value)}
-                className="w-full bg-slate-50 border border-slate-200 rounded-xl px-3 py-2.5 text-xs text-slate-900 focus:outline-none focus:ring-2 focus:ring-teal-600 focus:bg-white transition-colors"
+                className="w-full bg-[#0F172A] border border-slate-700 rounded-xl px-3 py-2.5 text-xs text-white focus:outline-none focus:ring-2 focus:ring-teal-500 focus:bg-slate-900 transition-colors"
               >
                 <option value="">Unassigned</option>
                 {markets.map((m) => (
@@ -174,13 +174,13 @@ export const EditPersonnelModal: React.FC<EditPersonnelModalProps> = ({
 
             {/* Account Status */}
             <div>
-              <label className="text-xs font-bold text-slate-700 block mb-1.5">
+              <label className="text-xs font-bold text-slate-300 block mb-1.5">
                 ACCOUNT STATUS
               </label>
               <select
                 value={status}
                 onChange={(e) => setStatus(e.target.value as 'ACTIVE' | 'INACTIVE')}
-                className="w-full bg-slate-50 border border-slate-200 rounded-xl px-3 py-2.5 text-xs text-slate-900 focus:outline-none focus:ring-2 focus:ring-teal-600 focus:bg-white transition-colors"
+                className="w-full bg-[#0F172A] border border-slate-700 rounded-xl px-3 py-2.5 text-xs text-white focus:outline-none focus:ring-2 focus:ring-teal-500 focus:bg-slate-900 transition-colors"
               >
                 <option value="ACTIVE">ACTIVE (Authorized)</option>
                 <option value="INACTIVE">INACTIVE (Deactivated)</option>
@@ -189,19 +189,19 @@ export const EditPersonnelModal: React.FC<EditPersonnelModalProps> = ({
           </div>
 
           {/* Form Actions */}
-          <div className="pt-4 flex items-center justify-end gap-2.5 border-t border-slate-100">
+          <div className="pt-4 flex items-center justify-end gap-2.5 border-t border-slate-800">
             <button
               type="button"
               onClick={onClose}
               disabled={isSubmitting}
-              className="px-4 py-2.5 text-xs font-semibold text-slate-600 hover:bg-slate-100 rounded-xl transition-colors cursor-pointer"
+              className="px-4 py-2.5 text-xs font-semibold text-slate-400 hover:text-white bg-slate-900 hover:bg-slate-800 border border-slate-700 rounded-xl transition-colors cursor-pointer"
             >
               Cancel
             </button>
             <button
               type="submit"
               disabled={isSubmitting}
-              className="px-5 py-2.5 text-xs font-bold text-white bg-[#0D9488] hover:bg-[#0F766E] rounded-xl shadow-xs transition-all cursor-pointer flex items-center gap-1.5 disabled:opacity-50"
+              className="px-5 py-2.5 text-xs font-bold text-white bg-gradient-to-r from-[#0D9488] to-[#06B6D4] hover:brightness-110 rounded-xl shadow-md shadow-teal-500/20 transition-all cursor-pointer flex items-center gap-1.5 active:scale-95 disabled:opacity-50"
             >
               <Save className="w-3.5 h-3.5" />
               <span>{isSubmitting ? 'Saving...' : 'Save Changes'}</span>

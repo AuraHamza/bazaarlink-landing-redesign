@@ -20,13 +20,22 @@ import { LoadingScreen } from './components/LoadingScreen';
 import { MapPage } from './components/MapPage';
 import { PlatformAdminDashboard } from './components/admin/PlatformAdminDashboard';
 import { AdminLoginPage } from './components/admin/AdminLoginPage';
+import { CustomerShopLoginPage } from './components/CustomerShopLoginPage';
 
 export default function App() {
   const [isLoading, setIsLoading] = useState(true);
-  const [currentView, setCurrentView] = useState<'landing' | 'map' | 'admin-login' | 'admin'>(() => {
+  const [currentView, setCurrentView] = useState<'landing' | 'map' | 'login' | 'admin-login' | 'admin'>(() => {
     if (typeof window !== 'undefined') {
       const pathname = window.location.pathname.toLowerCase();
       const hash = window.location.hash.toLowerCase();
+      if (
+        pathname === '/login' ||
+        pathname.startsWith('/login') ||
+        hash === '#login' ||
+        hash.startsWith('#login')
+      ) {
+        return 'login';
+      }
       if (
         pathname === '/admin/login' ||
         pathname.startsWith('/admin/login') ||
@@ -86,6 +95,13 @@ export default function App() {
       const pathname = window.location.pathname.toLowerCase();
       const hash = window.location.hash.toLowerCase();
       if (
+        pathname === '/login' ||
+        pathname.startsWith('/login') ||
+        hash === '#login' ||
+        hash.startsWith('#login')
+      ) {
+        setCurrentView('login');
+      } else if (
         pathname === '/admin/login' ||
         pathname.startsWith('/admin/login') ||
         hash === '#admin/login' ||
@@ -101,7 +117,7 @@ export default function App() {
         setCurrentView('admin');
       } else if (pathname === '/map' || hash === '#map') {
         setCurrentView('map');
-      } else if (pathname === '/' && !hash.startsWith('#admin')) {
+      } else if (pathname === '/' && !hash.startsWith('#admin') && !hash.startsWith('#login')) {
         setCurrentView('landing');
       }
     };
@@ -133,13 +149,23 @@ export default function App() {
   };
 
   return (
-    <div className="min-h-screen bg-[#F8FAFC] text-slate-900 flex flex-col font-sans relative">
+    <div className="min-h-screen bg-[#F8FAFC] text-slate-800 flex flex-col font-sans relative">
       {/* Premium Branded BazaarLink Loading / Splash Screen */}
       {isLoading && (
         <LoadingScreen onComplete={() => setIsLoading(false)} />
       )}
 
-      {currentView === 'admin-login' ? (
+      {currentView === 'login' ? (
+        /* Dedicated Customer + Shop Admin Authentication Portal (/login) */
+        <CustomerShopLoginPage
+          onNavigateHome={() => {
+            if (typeof window !== 'undefined') {
+              window.history.pushState(null, '', '/');
+            }
+            setCurrentView('landing');
+          }}
+        />
+      ) : currentView === 'admin-login' ? (
         /* Dedicated BazaarLink Admin Login Page (/admin/login) */
         <AdminLoginPage
           onPlatformAdminLoginSuccess={() => {
@@ -153,6 +179,12 @@ export default function App() {
               window.history.pushState(null, '', '/');
             }
             setCurrentView('landing');
+          }}
+          onNavigateToCustomerLogin={() => {
+            if (typeof window !== 'undefined') {
+              window.history.pushState(null, '', '/login');
+            }
+            setCurrentView('login');
           }}
         />
       ) : currentView === 'admin' ? (
@@ -183,7 +215,26 @@ export default function App() {
           {/* 1. Sticky Navbar */}
           <Navbar
             currentView={currentView}
-            onNavigateView={(v) => setCurrentView(v)}
+            onNavigateView={(v) => {
+              if (v === 'landing') {
+                if (typeof window !== 'undefined') window.history.pushState(null, '', '/');
+              } else if (v === 'map') {
+                if (typeof window !== 'undefined') window.history.pushState(null, '', '/map');
+              } else if (v === 'login') {
+                if (typeof window !== 'undefined') window.history.pushState(null, '', '/login');
+              } else if (v === 'admin-login') {
+                if (typeof window !== 'undefined') window.history.pushState(null, '', '/admin/login');
+              } else if (v === 'admin') {
+                if (typeof window !== 'undefined') window.history.pushState(null, '', '/admin');
+              }
+              setCurrentView(v);
+            }}
+            onNavigateToLogin={() => {
+              if (typeof window !== 'undefined') {
+                window.history.pushState(null, '', '/login');
+              }
+              setCurrentView('login');
+            }}
             onOpenAuth={(mode) => setAuthModalState({ isOpen: true, mode })}
             onNavigateToSection={handleScrollToSection}
             onExploreMarkets={() => {
@@ -254,6 +305,12 @@ export default function App() {
           {/* 8. Footer */}
           <Footer
             onOpenAuth={(mode) => setAuthModalState({ isOpen: true, mode })}
+            onNavigateToLogin={() => {
+              if (typeof window !== 'undefined') {
+                window.history.pushState(null, '', '/login');
+              }
+              setCurrentView('login');
+            }}
             onNavigateToSection={(sec) => {
               if (currentView === 'map') {
                 setCurrentView('landing');
